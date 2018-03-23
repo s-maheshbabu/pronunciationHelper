@@ -1,0 +1,30 @@
+{
+  "name": "pronunciationhelper",
+  "version": "1.0.0",
+  "description": "An Alexa skill to help with pronunciation of words.",
+  "main": "pronunciationHelper.js",
+  "scripts": {
+    "test": "find ./test | xargs ./node_modules/.bin/mocha -R spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/s-maheshbabu/pronunciationHelper.git"
+  },
+  "author": "Mahesh Sabbavarapu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/s-maheshbabu/pronunciationHelper/issues"
+  },
+  "homepage": "https://github.com/s-maheshbabu/pronunciationHelper#readme",
+  "dependencies": {
+    "alexa-sdk": "^1.0.25"
+  },
+  "devDependencies": {
+    "grunt": "0.4.*",
+    "grunt-aws-lambda": "0.*.*",
+    "mocha": "2.3.*",
+    "chai": "^3.4.1",
+    "mockery": "^1.4.0",
+    "sinon": "1.*.*"
+  }
+}
