@@ -17,13 +17,14 @@
   },
   "homepage": "https://github.com/s-maheshbabu/pronunciationHelper#readme",
   "dependencies": {
-    "alexa-sdk": "^1.0.25"
+    "alexa-sdk": "^1.0.25",
+    "sprintf-js": "^1.1.1"
   },
   "devDependencies": {
+    "chai": "^3.4.1",
     "grunt": "0.4.*",
     "grunt-aws-lambda": "0.*.*",
     "mocha": "2.3.*",
-    "chai": "^3.4.1",
     "mockery": "^1.4.0",
     "sinon": "1.*.*"
   }
