@@ -66,6 +66,62 @@ it("handles the AMAZON.HelpIntent properly", function() {
   expect(reprompt.outputSpeech.type).to.equal("SSML");
 });
 
+it("handles the AMAZON.CancelIntent properly", function() {
+  const event = require("../test-data/cancel_intent_event");
+  const succeedSpy = sinon.spy(context, "succeed");
+
+  unitUnderTest.handler(event, context);
+
+  assert(succeedSpy.calledOnce);
+
+  const argument = succeedSpy.args[0][0];
+  const sessionAttributesUsed = argument.sessionAttributes;
+  assert(
+    Object.keys(sessionAttributesUsed).length === 0 &&
+      sessionAttributesUsed.constructor === Object
+  );
+
+  const responseUsed = argument.response;
+  console.log(responseUsed);
+  assert(responseUsed.shouldEndSession);
+
+  const outputSpeech = responseUsed.outputSpeech;
+  expect(outputSpeech.ssml).to.equal("");
+  expect(outputSpeech.type).to.equal("SSML");
+
+  const reprompt = responseUsed.reprompt;
+  expect(reprompt.outputSpeech.ssml).to.equal("");
+  expect(reprompt.outputSpeech.type).to.equal("SSML");
+});
+
+it("handles the AMAZON.StopIntent properly", function() {
+  const event = require("../test-data/stop_intent_event");
+  const succeedSpy = sinon.spy(context, "succeed");
+
+  unitUnderTest.handler(event, context);
+
+  assert(succeedSpy.calledOnce);
+
+  const argument = succeedSpy.args[0][0];
+  const sessionAttributesUsed = argument.sessionAttributes;
+  assert(
+    Object.keys(sessionAttributesUsed).length === 0 &&
+      sessionAttributesUsed.constructor === Object
+  );
+
+  const responseUsed = argument.response;
+  console.log(responseUsed);
+  assert(responseUsed.shouldEndSession);
+
+  const outputSpeech = responseUsed.outputSpeech;
+  expect(outputSpeech.ssml).to.equal("");
+  expect(outputSpeech.type).to.equal("SSML");
+
+  const reprompt = responseUsed.reprompt;
+  expect(reprompt.outputSpeech.ssml).to.equal("");
+  expect(reprompt.outputSpeech.type).to.equal("SSML");
+});
+
 it("should render the welcome message on launch requests", function() {
   const event = JSON.parse(vsprintf(launchRequestEvent, eventArgs));
 
