@@ -35,6 +35,15 @@ it("should fail when we receive an incorrect applicationId", function() {
   expect(failSpy.calledWith("Invalid Application ID")).to.be.true;
 });
 
+it("should fail when we receive an unknown intent", function() {
+  const event = require("../test-data/unknown_intent_event");
+
+  const failSpy = sinon.spy(context, "fail");
+
+  unitUnderTest.handler(event, context);
+  assert(failSpy.calledOnce);
+});
+
 it("handles the AMAZON.HelpIntent properly", function() {
   const event = require("../test-data/help_intent_event");
   const succeedSpy = sinon.spy(context, "succeed");
