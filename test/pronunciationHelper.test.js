@@ -1,4 +1,4 @@
-const unitUnderTest = require("../pronunciationHelper");
+const unitUnderTest = require("../src/pronunciationHelper");
 
 const expect = require("chai").expect;
 const assert = require("chai").assert;
