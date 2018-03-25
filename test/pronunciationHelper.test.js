@@ -107,6 +107,145 @@ it("should increment the failure attempts count and reprompt the user if the spe
   );
 });
 
+it("should create a failure attempts count in session attributes if the input has any lower case characters on user's first attempt. We should then prompt the user to try again.", function() {
+  const event = require("../test-data/event");
+  const wordsWithLowerCaseCharacters = [
+    "DoG",
+    "dog",
+    "   D Og",
+    "          d. O       g    "
+  ];
+
+  const succeedSpy = sinon.spy(context, "succeed");
+  for (let i = 0; i < wordsWithLowerCaseCharacters.length; i++) {
+    event.request.intent.slots.Spelling.value = wordsWithLowerCaseCharacters[i];
+
+    succeedSpy.reset();
+    unitUnderTest.handler(event, context);
+    assert(succeedSpy.calledOnce);
+
+    const argument = succeedSpy.args[0][0];
+    const sessionAttributesUsed = argument.sessionAttributes;
+    expect(sessionAttributesUsed.numberOfFailedAttempts).to.equal(1);
+
+    const responseUsed = argument.response;
+    assert(!responseUsed.shouldEndSession);
+
+    const outputSpeech = responseUsed.outputSpeech;
+    expect(outputSpeech.ssml).to.equal(
+      "<speak> I didn't get that. Please try again. </speak>"
+    );
+    expect(outputSpeech.type).to.equal("SSML");
+
+    const reprompt = responseUsed.reprompt;
+    expect(reprompt.outputSpeech.ssml).to.equal("");
+    expect(reprompt.outputSpeech.type).to.equal("SSML");
+
+    const card = responseUsed.card;
+    expect(card.title).to.equal(`Pronunciations`);
+    expect(card.type).to.equal("Simple");
+    expect(card.content).to.equal(
+      `I heard "${
+        wordsWithLowerCaseCharacters[i]
+      }" but I do not know how to pronounce it. Please try again.`
+    );
+  }
+});
+
+it("should increment the failure attempts count in session attributes each time we receive an invalid or missing inputs and the last one is an invalid input. If we are through the maximum number of attempts, we should render the right messages and exit..", function() {
+  const event = require("../test-data/event");
+  const maxAttempts = 3;
+
+  let currentAttempt = 0;
+  const seriesOfInvalidOrMissingInputs = ["DoG", undefined, "   D Og"];
+
+  const succeedSpy = sinon.spy(context, "succeed");
+  for (let i = 0; i < seriesOfInvalidOrMissingInputs.length; i++) {
+    currentAttempt++;
+    event.request.intent.slots.Spelling.value =
+      seriesOfInvalidOrMissingInputs[i];
+
+    unitUnderTest.handler(event, context);
+
+    const argumentWhenExiting = succeedSpy.args[i][0];
+    event.session.attributes = argumentWhenExiting.sessionAttributes;
+  }
+  assert(succeedSpy.calledThrice);
+
+  // TODO: After refactoring, may be we can assert on the output of each invalid input.
+  const argumentWhenExiting = succeedSpy.args[2][0];
+  const sessionAttributesUsed = argumentWhenExiting.sessionAttributes;
+  expect(sessionAttributesUsed.numberOfFailedAttempts).to.equal(maxAttempts);
+
+  const responseUsed = argumentWhenExiting.response;
+  assert(responseUsed.shouldEndSession);
+
+  const outputSpeech = responseUsed.outputSpeech;
+  expect(outputSpeech.ssml).to.equal(
+    "<speak> Sorry, am having trouble understanding. Please try again later. Good bye. </speak>"
+  );
+  expect(outputSpeech.type).to.equal("SSML");
+
+  const reprompt = responseUsed.reprompt;
+  expect(reprompt.outputSpeech.ssml).to.equal("");
+  expect(reprompt.outputSpeech.type).to.equal("SSML");
+
+  const card = responseUsed.card;
+  expect(card.title).to.equal(`Pronunciations`);
+  expect(card.type).to.equal("Simple");
+  expect(card.content).to.equal(
+    `I heard "${
+      seriesOfInvalidOrMissingInputs[maxAttempts - 1]
+    }" but I do not know how to pronounce it. Sorry.`
+  );
+});
+
+it("should increment the failure attempts count in session attributes each time we receive an invalid or missing inputs and the last one is a missing input. If we are through the maximum number of attempts, we should render the right messages and exit..", function() {
+  const event = require("../test-data/event");
+  const maxAttempts = 3;
+
+  let currentAttempt = 0;
+  const seriesOfInvalidOrMissingInputs = ["DoG", "   D Og", undefined];
+
+  const succeedSpy = sinon.spy(context, "succeed");
+  for (let i = 0; i < seriesOfInvalidOrMissingInputs.length; i++) {
+    currentAttempt++;
+    event.request.intent.slots.Spelling.value =
+      seriesOfInvalidOrMissingInputs[i];
+
+    unitUnderTest.handler(event, context);
+
+    const argumentWhenExiting = succeedSpy.args[i][0];
+    event.session.attributes = argumentWhenExiting.sessionAttributes;
+  }
+  assert(succeedSpy.calledThrice);
+
+  // TODO: After refactoring, may be we can assert on the output of each invalid input.
+  const argumentWhenExiting = succeedSpy.args[2][0];
+  const sessionAttributesUsed = argumentWhenExiting.sessionAttributes;
+  expect(sessionAttributesUsed.numberOfFailedAttempts).to.equal(maxAttempts);
+
+  const responseUsed = argumentWhenExiting.response;
+  assert(responseUsed.shouldEndSession);
+
+  const outputSpeech = responseUsed.outputSpeech;
+  expect(outputSpeech.ssml).to.equal(
+    "<speak> Sorry, am having trouble understanding. Please try again later. Good bye </speak>"
+  );
+  expect(outputSpeech.type).to.equal("SSML");
+
+  const reprompt = responseUsed.reprompt;
+  expect(reprompt.outputSpeech.ssml).to.equal("");
+  expect(reprompt.outputSpeech.type).to.equal("SSML");
+
+  const card = responseUsed.card;
+  expect(card.title).to.equal(`Pronunciations`);
+  expect(card.type).to.equal("Simple");
+  expect(card.content).to.equal(
+    `Am sorry, am having trouble understanding. Please try again.`
+  );
+});
+
 it("handles the AMAZON.HelpIntent properly", function() {
   const event = require("../test-data/help_intent_event");
   const succeedSpy = sinon.spy(context, "succeed");
