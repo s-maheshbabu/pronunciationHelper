@@ -2,22 +2,15 @@ const unitUnderTest = require("../pronunciationHelper");
 
 const expect = require("chai").expect;
 const assert = require("chai").assert;
-const mockery = require("mockery");
+//TODO Is this even needed?
+//const mockery = require("mockery");
 const sinon = require("sinon");
-
-const vsprintf = require("sprintf-js").vsprintf;
+const decache = require("decache");
 
 const genericEvent = require("../test-data/event").event;
-const launchRequestEvent = require("../test-data/launch_request_event").event;
 
 let context;
-let eventArgs;
 beforeEach(function() {
-  eventArgs = {
-    mockApplicationId:
-      "amzn1.echo-sdk-ams.app.22799827-aae1-4115-9b48-e2b74e33ee03"
-  };
-
   context = {
     fail: function() {},
     succeed: function() {},
@@ -25,9 +18,13 @@ beforeEach(function() {
   };
 });
 
+afterEach(function() {
+  decache("../test-data/event");
+});
+
 it("should fail when we receive an incorrect applicationId", function() {
-  eventArgs.mockApplicationId = "invalid application id";
-  const event = JSON.parse(vsprintf(genericEvent, eventArgs));
+  const event = require("../test-data/event");
+  event.session.application.applicationId = "invalid application id";
 
   const failSpy = sinon.spy(context, "fail");
 
@@ -42,6 +39,74 @@ it("should fail when we receive an unknown intent", function() {
 
   unitUnderTest.handler(event, context);
   assert(failSpy.calledOnce);
+});
+
+it("should increment the failure attempts count and reprompt the user if the spelling slot is missing altogether", function() {
+  const event = require("../test-data/event");
+  event.request.intent.slots.Spelling = undefined;
+
+  const succeedSpy = sinon.spy(context, "succeed");
+
+  unitUnderTest.handler(event, context);
+  assert(succeedSpy.calledOnce);
+
+  const argument = succeedSpy.args[0][0];
+  const sessionAttributesUsed = argument.sessionAttributes;
+  expect(sessionAttributesUsed.numberOfFailedAttempts).to.equal(1);
+
+  const responseUsed = argument.response;
+  assert(!responseUsed.shouldEndSession);
+
+  const outputSpeech = responseUsed.outputSpeech;
+  expect(outputSpeech.ssml).to.equal(
+    "<speak> I didn't get that. Please try again. </speak>"
+  );
+  expect(outputSpeech.type).to.equal("SSML");
+
+  const reprompt = responseUsed.reprompt;
+  expect(reprompt.outputSpeech.ssml).to.equal("");
+  expect(reprompt.outputSpeech.type).to.equal("SSML");
+
+  const card = responseUsed.card;
+  expect(card.title).to.equal("Pronunciations");
+  expect(card.type).to.equal("Simple");
+  expect(card.content).to.equal(
+    "Am sorry, am having trouble understanding. Please try again."
+  );
+});
+
+it("should increment the failure attempts count and reprompt the user if the spelling slot value is undefined", function() {
+  const event = require("../test-data/event");
+  event.request.intent.slots.Spelling.value = undefined;
+
+  const succeedSpy = sinon.spy(context, "succeed");
+
+  unitUnderTest.handler(event, context);
+  assert(succeedSpy.calledOnce);
+
+  const argument = succeedSpy.args[0][0];
+  const sessionAttributesUsed = argument.sessionAttributes;
+  expect(sessionAttributesUsed.numberOfFailedAttempts).to.equal(1);
+
+  const responseUsed = argument.response;
+  assert(!responseUsed.shouldEndSession);
+
+  const outputSpeech = responseUsed.outputSpeech;
+  expect(outputSpeech.ssml).to.equal(
+    "<speak> I didn't get that. Please try again. </speak>"
+  );
+  expect(outputSpeech.type).to.equal("SSML");
+
+  const reprompt = responseUsed.reprompt;
+  expect(reprompt.outputSpeech.ssml).to.equal("");
+  expect(reprompt.outputSpeech.type).to.equal("SSML");
+
+  const card = responseUsed.card;
+  expect(card.title).to.equal("Pronunciations");
+  expect(card.type).to.equal("Simple");
+  expect(card.content).to.equal(
+    "Am sorry, am having trouble understanding. Please try again."
+  );
 });
 
 it("handles the AMAZON.HelpIntent properly", function() {
@@ -132,7 +197,7 @@ it("handles the AMAZON.StopIntent properly", function() {
 });
 
 it("should render the welcome message on launch requests", function() {
-  const event = JSON.parse(vsprintf(launchRequestEvent, eventArgs));
+  const event = require("../test-data/launch_request_event");
 
   const succeedSpy = sinon.spy(context, "succeed");
 
