@@ -232,7 +232,7 @@ function pronounceTheWord(intent, session, callback) {
       cardOutput =
         "Now that you know how to pronounce " +
         wordToBePronoucned +
-        ' you can ask Alexa for its meaning by saying "Alexa, define ' +
+        ', you can ask Alexa for its meaning by saying "Alexa, define ' +
         wordToBePronoucned +
         '"';
       cardTitle = "Pronunciation of " + wordToBePronoucned;

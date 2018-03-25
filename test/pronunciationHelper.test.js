@@ -233,3 +233,91 @@ it("should render the welcome message on launch requests", function() {
     "Examples: \nPronounce D. O. G.\nHow to pronounce B. I. T. S.\nWhat is the pronunciation for C. A. T.\nAsk pnonunciations to pronounce P. I. L. A. N. I.\n"
   );
 });
+
+it("should spell the words in the happy case", function() {
+  const event = require("../test-data/event");
+  const wordsToBePronoucned = ["DOG", "A", "D.O.G.", "D.O.G"];
+
+  const succeedSpy = sinon.spy(context, "succeed");
+  for (let i = 0; i < wordsToBePronoucned.length; i++) {
+    const wordToBePronoucned = wordsToBePronoucned[i];
+    event.request.intent.slots.Spelling.value = wordToBePronoucned;
+
+    succeedSpy.reset();
+    unitUnderTest.handler(event, context);
+    assert(succeedSpy.calledOnce);
+
+    const argument = succeedSpy.args[0][0];
+    const sessionAttributesUsed = argument.sessionAttributes;
+    expect(sessionAttributesUsed).to.be.undefined;
+
+    const responseUsed = argument.response;
+    assert(responseUsed.shouldEndSession);
+
+    const outputSpeech = responseUsed.outputSpeech;
+    expect(outputSpeech.ssml).to.equal(
+      "<speak> It is pronounced as " + wordToBePronoucned + ". </speak>"
+    );
+    expect(outputSpeech.type).to.equal("SSML");
+
+    const reprompt = responseUsed.reprompt;
+    expect(reprompt.outputSpeech.ssml).to.equal("");
+    expect(reprompt.outputSpeech.type).to.equal("SSML");
+
+    const card = responseUsed.card;
+    expect(card.title).to.equal(`Pronunciation of ${wordToBePronoucned}`);
+    expect(card.type).to.equal("Simple");
+    expect(card.content).to.equal(
+      `Now that you know how to pronounce ${wordToBePronoucned}, you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronoucned}"`
+    );
+  }
+});
+
+it(`should spell the word in case the input word has spaces in it. This is actually the most common
+case because Alexa usually returns a space separated slot value when users pronounce each character
+separately which they do when they are asking for a pronunciation`, function() {
+  const event = require("../test-data/event");
+  const wordsToBePronoucnedWithSpaces = [
+    "D O G",
+    "DOG   ",
+    "   DOG",
+    "          DO       G   ",
+    "          D O       G   ",
+    "          D O       G    "
+  ];
+  const wordToBePronoucned = "DOG";
+
+  const succeedSpy = sinon.spy(context, "succeed");
+  for (let i = 0; i < wordsToBePronoucnedWithSpaces.length; i++) {
+    event.request.intent.slots.Spelling.value =
+      wordsToBePronoucnedWithSpaces[i];
+
+    succeedSpy.reset();
+    unitUnderTest.handler(event, context);
+    assert(succeedSpy.calledOnce);
+
+    const argument = succeedSpy.args[0][0];
+    const sessionAttributesUsed = argument.sessionAttributes;
+    expect(sessionAttributesUsed).to.be.undefined;
+
+    const responseUsed = argument.response;
+    assert(responseUsed.shouldEndSession);
+
+    const outputSpeech = responseUsed.outputSpeech;
+    expect(outputSpeech.ssml).to.equal(
+      "<speak> I would pronounce it as " + wordToBePronoucned + ". </speak>"
+    );
+    expect(outputSpeech.type).to.equal("SSML");
+
+    const reprompt = responseUsed.reprompt;
+    expect(reprompt.outputSpeech.ssml).to.equal("");
+    expect(reprompt.outputSpeech.type).to.equal("SSML");
+
+    const card = responseUsed.card;
+    expect(card.title).to.equal(`Pronunciation of ${wordToBePronoucned}`);
+    expect(card.type).to.equal("Simple");
+    expect(card.content).to.equal(
+      `Now that you know how to pronounce ${wordToBePronoucned}, you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronoucned}"`
+    );
+  }
+});
