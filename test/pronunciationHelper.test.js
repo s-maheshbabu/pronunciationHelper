@@ -2,8 +2,6 @@ const unitUnderTest = require("../pronunciationHelper");
 
 const expect = require("chai").expect;
 const assert = require("chai").assert;
-//TODO Is this even needed?
-//const mockery = require("mockery");
 const sinon = require("sinon");
 const decache = require("decache");
 
