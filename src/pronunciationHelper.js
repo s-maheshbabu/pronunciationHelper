@@ -28,6 +28,7 @@ exports.handler = function(event, context, callback) {
 
 // --------------- Functions that control the skill's behavior -----------------------
 function getWelcomeResponse() {
+  console.log(`Handling Launch request.`);
   this.emit(
     ":askWithCard",
     "Welcome to Pronunciations. You can say things like, pronounce B. I. T. S.",
@@ -42,6 +43,8 @@ function getWelcomeResponse() {
 }
 
 function getHelpResponse() {
+  console.log(`Handling Amazon.HelpIntent.`);
+
   this.emit(
     ":ask",
     `I can help you pronounce English words in my accent. You just need to spell the word you need the pronunciation for. For example, you can say, pronounce B. I. T. S. <break time="100ms"/> and I will tell you that it is pronounced as bits. So go ahead and spell the word you want me to pronounce.`,
@@ -64,9 +67,14 @@ function pronounceTheWord() {
     wordToBePronoucnedSlot.value !== undefined
   ) {
     var wordToBePronoucned = wordToBePronoucnedSlot.value;
+    console.log(`Spelling slot value provided by Alexa: ${wordToBePronoucned}`);
+
     if (isAllLowerCase(wordToBePronoucned)) {
       // User is probably trying to pronounce a word without spelling it out (For ex, Alexa, ask pronunciations to pronounce 'how are you').
       // Not the purpose of this skill but we can still try to pronounce it and then educate the user.
+      console.log(
+        `Input is all lower case. Pronouncing the word and rendering an educative prompt.`
+      );
       this.emit(
         ":tellWithCard",
         `I would pronounce it as ${wordToBePronoucned}. By the way, I work best when you spell the word you want me to pronounce, instead of saying the entire word or phrase.`,
@@ -77,6 +85,9 @@ function pronounceTheWord() {
       // Remove all non-alphanumeric characters. This is to strip out spaces and dots that Alexa might provide in its slot values.
       // D. Og will get converted to DOg, for example.
       wordToBePronoucned = wordToBePronoucned.replace(/\W/g, "");
+      console.log(
+        `Word that will be delivered after pre-processing: ${wordToBePronoucned}`
+      );
 
       this.emit(
         ":tellWithCard",
@@ -85,6 +96,8 @@ function pronounceTheWord() {
         `Now that you know how to pronounce ${wordToBePronoucned}, you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronoucned}"`
       );
     } else {
+      console.log(`Word that will be delivered: ${wordToBePronoucned}`);
+
       this.emit(
         ":tellWithCard",
         `It is pronounced as ${wordToBePronoucned}.`,
@@ -94,6 +107,9 @@ function pronounceTheWord() {
     }
   } else {
     incrementFailedAttemptsCount(this.attributes);
+    console.log(
+      `Invalid input. Rendering an error prompt and asking the user to try again.`
+    );
 
     if (isAttemptsRemaining(this.attributes)) {
       this.emit(
