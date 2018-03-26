@@ -44,7 +44,7 @@ function getWelcomeResponse() {
 function getHelpResponse() {
   this.emit(
     ":ask",
-    `I can help you pronounce English words in my accent. You just need to spell the word you need the pronunciation for. For example, you can say, pronounce B. I. T. S. <break time="100ms"/> and I will tell you that it is pronounced as bits. So what word do you want me to pronounce?`,
+    `I can help you pronounce English words in my accent. You just need to spell the word you need the pronunciation for. For example, you can say, pronounce B. I. T. S. <break time="100ms"/> and I will tell you that it is pronounced as bits. So go ahead and spell the word you want me to pronounce.`,
     `What word do you want the pronunciation for? You can say things like, what is the pronunciation for P. I. L. A. N. I.`
   );
 }
@@ -64,26 +64,19 @@ function pronounceTheWord() {
     wordToBePronoucnedSlot.value !== undefined
   ) {
     var wordToBePronoucned = wordToBePronoucnedSlot.value;
-    if (hasLowerCase(wordToBePronoucned)) {
-      incrementFailedAttemptsCount(this.attributes);
-      if (isAttemptsRemaining(this.attributes)) {
-        this.emit(
-          ":askWithCard",
-          "I didn't get that. Please try again.",
-          "I didn't get the word you were asking for. Please try again.",
-          cardTitle,
-          `I heard "${wordToBePronoucned}" but I do not know how to pronounce it. Please try again.`
-        );
-      } else {
-        this.emit(
-          ":tellWithCard",
-          `Sorry, am having trouble understanding. Please try again later. Good bye.`,
-          cardTitle,
-          `I heard "${wordToBePronoucned}" but I do not know how to pronounce it. Sorry.`
-        );
-      }
+    if (isAllLowerCase(wordToBePronoucned)) {
+      // User is probably trying to pronounce a word without spelling it out (For ex, Alexa, ask pronunciations to pronounce 'how are you').
+      // Not the purpose of this skill but we can still try to pronounce it and then educate the user.
+      this.emit(
+        ":tellWithCard",
+        `I would pronounce it as ${wordToBePronoucned}. By the way, I work best when you spell the word you want me to pronounce, instead of saying the entire word or phrase.`,
+        `Pronunciation of '${wordToBePronoucned}'`,
+        `Now that you know how to pronounce '${wordToBePronoucned}', you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronoucned}". By the way, you might have tried to pronounce a word or a phrase but I work best when you spell the word you need pronunciation for. Say "Ask Pronunciations for help" to learn more.`
+      );
     } else if (hasWhiteSpaces(wordToBePronoucned)) {
-      wordToBePronoucned = wordToBePronoucned.replace(/ /g, "");
+      // Remove all non-alphanumeric characters. This is to strip out spaces and dots that Alexa might provide in its slot values.
+      // D. Og will get converted to DOg, for example.
+      wordToBePronoucned = wordToBePronoucned.replace(/\W/g, "");
 
       this.emit(
         ":tellWithCard",
@@ -141,8 +134,8 @@ function incrementFailedAttemptsCount(attributes) {
 }
 
 // --------------- Utility functions -----------------------
-function hasLowerCase(input) {
-  return input.toUpperCase() != input;
+function isAllLowerCase(input) {
+  return input === input.toLowerCase();
 }
 
 function hasWhiteSpaces(input) {

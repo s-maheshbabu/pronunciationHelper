@@ -31,7 +31,6 @@ it("should increment the failure attempts count and reprompt the user if the spe
 
   const argument = succeedSpy.args[0][0];
   const sessionAttributesUsed = argument.sessionAttributes;
-  console.log(sessionAttributesUsed.numberOfFailedAttempts);
   expect(sessionAttributesUsed.numberOfFailedAttempts).to.equal(1);
 
   const responseUsed = argument.response;
@@ -93,112 +92,16 @@ it("should increment the failure attempts count and reprompt the user if the spe
   );
 });
 
-it("should create a failure attempts count in session attributes if the input has any lower case characters on user's first attempt. We should then prompt the user to try again.", function() {
-  const event = require("../test-data/event");
-  const wordsWithLowerCaseCharacters = [
-    "DoG",
-    "dog",
-    "   D Og",
-    "          d. O       g    "
-  ];
-
-  const succeedSpy = sinon.spy(context, "succeed");
-  for (let i = 0; i < wordsWithLowerCaseCharacters.length; i++) {
-    event.request.intent.slots.Spelling.value = wordsWithLowerCaseCharacters[i];
-    event.session.attributes = undefined;
-
-    succeedSpy.reset();
-    unitUnderTest.handler(event, context);
-    assert(succeedSpy.calledOnce);
-
-    const argument = succeedSpy.args[0][0];
-    const sessionAttributesUsed = argument.sessionAttributes;
-    expect(sessionAttributesUsed.numberOfFailedAttempts).to.equal(1);
-
-    const responseUsed = argument.response;
-    assert(!responseUsed.shouldEndSession);
-
-    const outputSpeech = responseUsed.outputSpeech;
-    expect(outputSpeech.ssml).to.equal(
-      "<speak> I didn't get that. Please try again. </speak>"
-    );
-    expect(outputSpeech.type).to.equal("SSML");
-
-    const reprompt = responseUsed.reprompt;
-    expect(reprompt.outputSpeech.ssml).to.equal(
-      "<speak> I didn't get the word you were asking for. Please try again. </speak>"
-    );
-    expect(reprompt.outputSpeech.type).to.equal("SSML");
-
-    const card = responseUsed.card;
-    expect(card.title).to.equal(`Pronunciations`);
-    expect(card.type).to.equal("Simple");
-    expect(card.content).to.equal(
-      `I heard "${
-        wordsWithLowerCaseCharacters[i]
-      }" but I do not know how to pronounce it. Please try again.`
-    );
-  }
-});
-
-it("should increment the failure attempts count in session attributes each time we receive an invalid or missing inputs and the last one is an invalid input. If we are through the maximum number of attempts, we should render the right messages and exit..", function() {
-  const event = require("../test-data/event");
-  const maxAttempts = 3;
-
-  let currentAttempt = 0;
-  const seriesOfInvalidOrMissingInputs = ["DoG", undefined, "   D Og"];
-
-  const succeedSpy = sinon.spy(context, "succeed");
-  for (let i = 0; i < seriesOfInvalidOrMissingInputs.length; i++) {
-    currentAttempt++;
-    event.request.intent.slots.Spelling.value =
-      seriesOfInvalidOrMissingInputs[i];
-
-    unitUnderTest.handler(event, context);
-
-    const argumentWhenExiting = succeedSpy.args[i][0];
-    event.session.attributes = argumentWhenExiting.sessionAttributes;
-  }
-  assert(succeedSpy.calledThrice);
-
-  // TODO: After refactoring, may be we can assert on the output of each invalid input.
-  const argumentWhenExiting = succeedSpy.args[2][0];
-  const sessionAttributesUsed = argumentWhenExiting.sessionAttributes;
-  expect(sessionAttributesUsed.numberOfFailedAttempts).to.equal(maxAttempts);
-
-  const responseUsed = argumentWhenExiting.response;
-  assert(responseUsed.shouldEndSession);
-
-  const outputSpeech = responseUsed.outputSpeech;
-  expect(outputSpeech.ssml).to.equal(
-    "<speak> Sorry, am having trouble understanding. Please try again later. Good bye. </speak>"
-  );
-  expect(outputSpeech.type).to.equal("SSML");
-
-  expect(responseUsed.reprompt).to.be.undefined;
-
-  const card = responseUsed.card;
-  expect(card.title).to.equal(`Pronunciations`);
-  expect(card.type).to.equal("Simple");
-  expect(card.content).to.equal(
-    `I heard "${
-      seriesOfInvalidOrMissingInputs[maxAttempts - 1]
-    }" but I do not know how to pronounce it. Sorry.`
-  );
-});
-
 it("should increment the failure attempts count in session attributes each time we receive an invalid or missing inputs and the last one is a missing input. If we are through the maximum number of attempts, we should render the right messages and exit..", function() {
   const event = require("../test-data/event");
   const maxAttempts = 3;
 
   let currentAttempt = 0;
-  const seriesOfInvalidOrMissingInputs = ["DoG", "   D Og", undefined];
 
   const succeedSpy = sinon.spy(context, "succeed");
-  for (let i = 0; i < seriesOfInvalidOrMissingInputs.length; i++) {
+  for (let i = 0; i < maxAttempts; i++) {
     currentAttempt++;
-    event.request.intent.slots.Spelling.value =
-      seriesOfInvalidOrMissingInputs[i];
+    event.request.intent.slots.Spelling.value = undefined;
 
     unitUnderTest.handler(event, context);
 
@@ -251,7 +154,7 @@ it("handles the AMAZON.HelpIntent properly", function() {
 
   const outputSpeech = responseUsed.outputSpeech;
   expect(outputSpeech.ssml).to.equal(
-    `<speak> I can help you pronounce English words in my accent. You just need to spell the word you need the pronunciation for. For example, you can say, pronounce B. I. T. S. <break time="100ms"/> and I will tell you that it is pronounced as bits. So what word do you want me to pronounce? </speak>`
+    `<speak> I can help you pronounce English words in my accent. You just need to spell the word you need the pronunciation for. For example, you can say, pronounce B. I. T. S. <break time="100ms"/> and I will tell you that it is pronounced as bits. So go ahead and spell the word you want me to pronounce. </speak>`
   );
   expect(outputSpeech.type).to.equal("SSML");
 
@@ -282,7 +185,7 @@ it("should treat unknown intents like Amazon.HelpIntent", function() {
 
   const outputSpeech = responseUsed.outputSpeech;
   expect(outputSpeech.ssml).to.equal(
-    `<speak> I can help you pronounce English words in my accent. You just need to spell the word you need the pronunciation for. For example, you can say, pronounce B. I. T. S. <break time="100ms"/> and I will tell you that it is pronounced as bits. So what word do you want me to pronounce? </speak>`
+    `<speak> I can help you pronounce English words in my accent. You just need to spell the word you need the pronunciation for. For example, you can say, pronounce B. I. T. S. <break time="100ms"/> and I will tell you that it is pronounced as bits. So go ahead and spell the word you want me to pronounce. </speak>`
   );
   expect(outputSpeech.type).to.equal("SSML");
 
@@ -309,7 +212,6 @@ it("handles the AMAZON.CancelIntent properly", function() {
   );
 
   const responseUsed = argument.response;
-  console.log(responseUsed);
   assert(responseUsed.shouldEndSession);
 
   const outputSpeech = responseUsed.outputSpeech;
@@ -335,7 +237,6 @@ it("handles the AMAZON.StopIntent properly", function() {
   );
 
   const responseUsed = argument.response;
-  console.log(responseUsed);
   assert(responseUsed.shouldEndSession);
 
   const outputSpeech = responseUsed.outputSpeech;
@@ -387,6 +288,58 @@ it("should render the welcome message on launch requests", function() {
   );
 });
 
+it("should spell the input and educate the user if the input is a all lower case. All lower case input usually means that the user asked for the pronunciation of a word or a phrase instead of spelling out a word character by character.", function() {
+  const event = require("../test-data/event");
+  const wordsWithLowerCaseCharacters = [
+    "dog",
+    "how are you",
+    "how. are you _doing"
+  ];
+
+  const succeedSpy = sinon.spy(context, "succeed");
+  for (let i = 0; i < wordsWithLowerCaseCharacters.length; i++) {
+    event.request.intent.slots.Spelling.value = wordsWithLowerCaseCharacters[i];
+    event.session.attributes = undefined;
+
+    succeedSpy.reset();
+    unitUnderTest.handler(event, context);
+    assert(succeedSpy.calledOnce);
+
+    const argument = succeedSpy.args[0][0];
+    const sessionAttributesUsed = argument.sessionAttributes;
+    assert(
+      Object.keys(sessionAttributesUsed).length === 0 &&
+        sessionAttributesUsed.constructor === Object
+    );
+
+    const responseUsed = argument.response;
+    assert(responseUsed.shouldEndSession);
+
+    const outputSpeech = responseUsed.outputSpeech;
+    expect(outputSpeech.ssml).to.equal(
+      `<speak> I would pronounce it as ${
+        wordsWithLowerCaseCharacters[i]
+      }. By the way, I work best when you spell the word you want me to pronounce, instead of saying the entire word or phrase. </speak>`
+    );
+    expect(outputSpeech.type).to.equal("SSML");
+
+    expect(responseUsed.reprompt).to.be.undefined;
+
+    const card = responseUsed.card;
+    expect(card.title).to.equal(
+      `Pronunciation of '${wordsWithLowerCaseCharacters[i]}'`
+    );
+    expect(card.type).to.equal("Simple");
+    expect(card.content).to.equal(
+      `Now that you know how to pronounce '${
+        wordsWithLowerCaseCharacters[i]
+      }', you can ask Alexa for its meaning by saying "Alexa, define ${
+        wordsWithLowerCaseCharacters[i]
+      }". By the way, you might have tried to pronounce a word or a phrase but I work best when you spell the word you need pronunciation for. Say "Ask Pronunciations for help" to learn more.`
+    );
+  }
+});
+
 it("should spell the words in the happy case", function() {
   const event = require("../test-data/event");
   const wordsToBePronoucned = ["DOG", "A", "D.O.G.", "D.O.G"];
@@ -427,16 +380,14 @@ it("should spell the words in the happy case", function() {
   }
 });
 
-it(`should spell the word in case the input word has spaces in it. This is actually the most common
-case because Alexa usually returns a space separated slot value when users pronounce each character
-separately which they do when they are asking for a pronunciation`, function() {
+it(`should spell the word in case the input word has spaces and other special characters in it.`, function() {
   const event = require("../test-data/event");
   const wordsToBePronoucnedWithSpaces = [
     "D O G",
     "DOG   ",
     "   DOG",
     "          DO       G   ",
-    "          D O       G   ",
+    "          D. O       G   ",
     "          D O       G    "
   ];
   const wordToBePronoucned = "DOG";
