@@ -20,25 +20,6 @@ afterEach(function() {
   decache("../test-data/event");
 });
 
-it("should fail when we receive an incorrect applicationId", function() {
-  const event = require("../test-data/event");
-  event.session.application.applicationId = "invalid application id";
-
-  const failSpy = sinon.spy(context, "fail");
-
-  unitUnderTest.handler(event, context);
-  expect(failSpy.calledWith("Invalid Application ID")).to.be.true;
-});
-
-it("should fail when we receive an unknown intent", function() {
-  const event = require("../test-data/unknown_intent_event");
-
-  const failSpy = sinon.spy(context, "fail");
-
-  unitUnderTest.handler(event, context);
-  assert(failSpy.calledOnce);
-});
-
 it("should increment the failure attempts count and reprompt the user if the spelling slot is missing altogether", function() {
   const event = require("../test-data/event");
   event.request.intent.slots.Spelling = undefined;
@@ -50,6 +31,7 @@ it("should increment the failure attempts count and reprompt the user if the spe
 
   const argument = succeedSpy.args[0][0];
   const sessionAttributesUsed = argument.sessionAttributes;
+  console.log(sessionAttributesUsed.numberOfFailedAttempts);
   expect(sessionAttributesUsed.numberOfFailedAttempts).to.equal(1);
 
   const responseUsed = argument.response;
@@ -62,7 +44,9 @@ it("should increment the failure attempts count and reprompt the user if the spe
   expect(outputSpeech.type).to.equal("SSML");
 
   const reprompt = responseUsed.reprompt;
-  expect(reprompt.outputSpeech.ssml).to.equal("");
+  expect(reprompt.outputSpeech.ssml).to.equal(
+    "<speak> I didn't get the word you were asking for. Please try again. </speak>"
+  );
   expect(reprompt.outputSpeech.type).to.equal("SSML");
 
   const card = responseUsed.card;
@@ -96,7 +80,9 @@ it("should increment the failure attempts count and reprompt the user if the spe
   expect(outputSpeech.type).to.equal("SSML");
 
   const reprompt = responseUsed.reprompt;
-  expect(reprompt.outputSpeech.ssml).to.equal("");
+  expect(reprompt.outputSpeech.ssml).to.equal(
+    "<speak> I didn't get the word you were asking for. Please try again. </speak>"
+  );
   expect(reprompt.outputSpeech.type).to.equal("SSML");
 
   const card = responseUsed.card;
@@ -119,6 +105,7 @@ it("should create a failure attempts count in session attributes if the input ha
   const succeedSpy = sinon.spy(context, "succeed");
   for (let i = 0; i < wordsWithLowerCaseCharacters.length; i++) {
     event.request.intent.slots.Spelling.value = wordsWithLowerCaseCharacters[i];
+    event.session.attributes = undefined;
 
     succeedSpy.reset();
     unitUnderTest.handler(event, context);
@@ -138,7 +125,9 @@ it("should create a failure attempts count in session attributes if the input ha
     expect(outputSpeech.type).to.equal("SSML");
 
     const reprompt = responseUsed.reprompt;
-    expect(reprompt.outputSpeech.ssml).to.equal("");
+    expect(reprompt.outputSpeech.ssml).to.equal(
+      "<speak> I didn't get the word you were asking for. Please try again. </speak>"
+    );
     expect(reprompt.outputSpeech.type).to.equal("SSML");
 
     const card = responseUsed.card;
@@ -186,9 +175,7 @@ it("should increment the failure attempts count in session attributes each time 
   );
   expect(outputSpeech.type).to.equal("SSML");
 
-  const reprompt = responseUsed.reprompt;
-  expect(reprompt.outputSpeech.ssml).to.equal("");
-  expect(reprompt.outputSpeech.type).to.equal("SSML");
+  expect(responseUsed.reprompt).to.be.undefined;
 
   const card = responseUsed.card;
   expect(card.title).to.equal(`Pronunciations`);
@@ -230,13 +217,11 @@ it("should increment the failure attempts count in session attributes each time 
 
   const outputSpeech = responseUsed.outputSpeech;
   expect(outputSpeech.ssml).to.equal(
-    "<speak> Sorry, am having trouble understanding. Please try again later. Good bye </speak>"
+    "<speak> Sorry, am having trouble understanding. Please try again later. Good bye. </speak>"
   );
   expect(outputSpeech.type).to.equal("SSML");
 
-  const reprompt = responseUsed.reprompt;
-  expect(reprompt.outputSpeech.ssml).to.equal("");
-  expect(reprompt.outputSpeech.type).to.equal("SSML");
+  expect(responseUsed.reprompt).to.be.undefined;
 
   const card = responseUsed.card;
   expect(card.title).to.equal(`Pronunciations`);
@@ -248,6 +233,37 @@ it("should increment the failure attempts count in session attributes each time 
 
 it("handles the AMAZON.HelpIntent properly", function() {
   const event = require("../test-data/help_intent_event");
+  const succeedSpy = sinon.spy(context, "succeed");
+
+  unitUnderTest.handler(event, context);
+
+  assert(succeedSpy.calledOnce);
+
+  const argument = succeedSpy.args[0][0];
+  const sessionAttributesUsed = argument.sessionAttributes;
+  assert(
+    Object.keys(sessionAttributesUsed).length === 0 &&
+      sessionAttributesUsed.constructor === Object
+  );
+
+  const responseUsed = argument.response;
+  assert(!responseUsed.shouldEndSession);
+
+  const outputSpeech = responseUsed.outputSpeech;
+  expect(outputSpeech.ssml).to.equal(
+    `<speak> I can help you pronounce English words in American accent. You just need to spell the word you need the pronunciation for. For example, you can say, pronounce B. I. T. S. <break time="100ms"/> and I will tell you that it is pronounced as bits. So what word do you want me to pronounce? </speak>`
+  );
+  expect(outputSpeech.type).to.equal("SSML");
+
+  const reprompt = responseUsed.reprompt;
+  expect(reprompt.outputSpeech.ssml).to.equal(
+    "<speak> What word do you want the pronunciation for? You can say things like, what is the pronunciation for P. I. L. A. N. I. </speak>"
+  );
+  expect(reprompt.outputSpeech.type).to.equal("SSML");
+});
+
+it("should treat unknown intents like Amazon.HelpIntent", function() {
+  const event = require("../test-data/unknown_intent_event");
   const succeedSpy = sinon.spy(context, "succeed");
 
   unitUnderTest.handler(event, context);
@@ -297,12 +313,10 @@ it("handles the AMAZON.CancelIntent properly", function() {
   assert(responseUsed.shouldEndSession);
 
   const outputSpeech = responseUsed.outputSpeech;
-  expect(outputSpeech.ssml).to.equal("");
+  expect(outputSpeech.ssml).to.equal("<speak>  </speak>");
   expect(outputSpeech.type).to.equal("SSML");
 
-  const reprompt = responseUsed.reprompt;
-  expect(reprompt.outputSpeech.ssml).to.equal("");
-  expect(reprompt.outputSpeech.type).to.equal("SSML");
+  expect(responseUsed.reprompt).to.be.undefined;
 });
 
 it("handles the AMAZON.StopIntent properly", function() {
@@ -325,12 +339,10 @@ it("handles the AMAZON.StopIntent properly", function() {
   assert(responseUsed.shouldEndSession);
 
   const outputSpeech = responseUsed.outputSpeech;
-  expect(outputSpeech.ssml).to.equal("");
+  expect(outputSpeech.ssml).to.equal("<speak>  </speak>");
   expect(outputSpeech.type).to.equal("SSML");
 
-  const reprompt = responseUsed.reprompt;
-  expect(reprompt.outputSpeech.ssml).to.equal("");
-  expect(reprompt.outputSpeech.type).to.equal("SSML");
+  expect(responseUsed.reprompt).to.be.undefined;
 });
 
 it("should render the welcome message on launch requests", function() {
@@ -367,7 +379,11 @@ it("should render the welcome message on launch requests", function() {
   expect(card.title).to.equal("Welcome to Pronunciations");
   expect(card.type).to.equal("Simple");
   expect(card.content).to.equal(
-    "Examples: \nPronounce D. O. G.\nHow to pronounce B. I. T. S.\nWhat is the pronunciation for C. A. T.\nAsk pnonunciations to pronounce P. I. L. A. N. I.\n"
+    `Examples: 
+    Pronounce D. O. G.
+    How to pronounce B. I. T. S.
+    What is the pronunciation for C. A. T.
+    Ask pnonunciations to pronounce P. I. L. A. N. I.`
   );
 });
 
@@ -386,7 +402,10 @@ it("should spell the words in the happy case", function() {
 
     const argument = succeedSpy.args[0][0];
     const sessionAttributesUsed = argument.sessionAttributes;
-    expect(sessionAttributesUsed).to.be.undefined;
+    assert(
+      Object.keys(sessionAttributesUsed).length === 0 &&
+        sessionAttributesUsed.constructor === Object
+    );
 
     const responseUsed = argument.response;
     assert(responseUsed.shouldEndSession);
@@ -397,9 +416,7 @@ it("should spell the words in the happy case", function() {
     );
     expect(outputSpeech.type).to.equal("SSML");
 
-    const reprompt = responseUsed.reprompt;
-    expect(reprompt.outputSpeech.ssml).to.equal("");
-    expect(reprompt.outputSpeech.type).to.equal("SSML");
+    expect(responseUsed.reprompt).to.be.undefined;
 
     const card = responseUsed.card;
     expect(card.title).to.equal(`Pronunciation of ${wordToBePronoucned}`);
@@ -435,7 +452,10 @@ separately which they do when they are asking for a pronunciation`, function() {
 
     const argument = succeedSpy.args[0][0];
     const sessionAttributesUsed = argument.sessionAttributes;
-    expect(sessionAttributesUsed).to.be.undefined;
+    assert(
+      Object.keys(sessionAttributesUsed).length === 0 &&
+        sessionAttributesUsed.constructor === Object
+    );
 
     const responseUsed = argument.response;
     assert(responseUsed.shouldEndSession);
@@ -446,9 +466,7 @@ separately which they do when they are asking for a pronunciation`, function() {
     );
     expect(outputSpeech.type).to.equal("SSML");
 
-    const reprompt = responseUsed.reprompt;
-    expect(reprompt.outputSpeech.ssml).to.equal("");
-    expect(reprompt.outputSpeech.type).to.equal("SSML");
+    expect(responseUsed.reprompt).to.be.undefined;
 
     const card = responseUsed.card;
     expect(card.title).to.equal(`Pronunciation of ${wordToBePronoucned}`);
