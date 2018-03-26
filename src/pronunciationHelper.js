@@ -107,11 +107,9 @@ function pronounceTheWord() {
     }
   } else {
     incrementFailedAttemptsCount(this.attributes);
-    console.log(
-      `Invalid input. Rendering an error prompt and asking the user to try again.`
-    );
 
     if (isAttemptsRemaining(this.attributes)) {
+      console.log(`Too many invalid inputs. Quitting.`);
       this.emit(
         ":askWithCard",
         "I didn't get that. Please try again.",
@@ -120,6 +118,10 @@ function pronounceTheWord() {
         "Am sorry, am having trouble understanding. Please try again."
       );
     } else {
+      console.log(
+        `Invalid input. Rendering an error prompt and asking the user to try again.`
+      );
+
       this.emit(
         ":tellWithCard",
         "Sorry, am having trouble understanding. Please try again later. Good bye.",
