@@ -44,7 +44,7 @@ function getWelcomeResponse() {
 function getHelpResponse() {
   this.emit(
     ":ask",
-    `I can help you pronounce English words in American accent. You just need to spell the word you need the pronunciation for. For example, you can say, pronounce B. I. T. S. <break time="100ms"/> and I will tell you that it is pronounced as bits. So what word do you want me to pronounce?`,
+    `I can help you pronounce English words in my accent. You just need to spell the word you need the pronunciation for. For example, you can say, pronounce B. I. T. S. <break time="100ms"/> and I will tell you that it is pronounced as bits. So what word do you want me to pronounce?`,
     `What word do you want the pronunciation for? You can say things like, what is the pronunciation for P. I. L. A. N. I.`
   );
 }

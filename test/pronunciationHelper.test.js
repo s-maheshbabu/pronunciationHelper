@@ -251,7 +251,7 @@ it("handles the AMAZON.HelpIntent properly", function() {
 
   const outputSpeech = responseUsed.outputSpeech;
   expect(outputSpeech.ssml).to.equal(
-    `<speak> I can help you pronounce English words in American accent. You just need to spell the word you need the pronunciation for. For example, you can say, pronounce B. I. T. S. <break time="100ms"/> and I will tell you that it is pronounced as bits. So what word do you want me to pronounce? </speak>`
+    `<speak> I can help you pronounce English words in my accent. You just need to spell the word you need the pronunciation for. For example, you can say, pronounce B. I. T. S. <break time="100ms"/> and I will tell you that it is pronounced as bits. So what word do you want me to pronounce? </speak>`
   );
   expect(outputSpeech.type).to.equal("SSML");
 
@@ -282,7 +282,7 @@ it("should treat unknown intents like Amazon.HelpIntent", function() {
 
   const outputSpeech = responseUsed.outputSpeech;
   expect(outputSpeech.ssml).to.equal(
-    `<speak> I can help you pronounce English words in American accent. You just need to spell the word you need the pronunciation for. For example, you can say, pronounce B. I. T. S. <break time="100ms"/> and I will tell you that it is pronounced as bits. So what word do you want me to pronounce? </speak>`
+    `<speak> I can help you pronounce English words in my accent. You just need to spell the word you need the pronunciation for. For example, you can say, pronounce B. I. T. S. <break time="100ms"/> and I will tell you that it is pronounced as bits. So what word do you want me to pronounce? </speak>`
   );
   expect(outputSpeech.type).to.equal("SSML");
 
