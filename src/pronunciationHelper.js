@@ -31,7 +31,7 @@ function getWelcomeResponse() {
   console.log(`Handling Launch request.`);
   this.emit(
     ":askWithCard",
-    "Welcome to Pronunciations. You can say things like, pronounce B. I. T. S.",
+    "Welcome to Pronunciations. You can say things like, pronounce B. I. T. S. So, what word do you want me to pronounce?",
     "What word do you want the pronunciation for? You can say things like, what is the pronunciation for P. I. L. A. N. I.",
     "Welcome to Pronunciations",
     `Examples: 

@@ -266,7 +266,7 @@ it("should render the welcome message on launch requests", function() {
 
   const outputSpeech = responseUsed.outputSpeech;
   expect(outputSpeech.ssml).to.equal(
-    "<speak> Welcome to Pronunciations. You can say things like, pronounce B. I. T. S. </speak>"
+    "<speak> Welcome to Pronunciations. You can say things like, pronounce B. I. T. S. So, what word do you want me to pronounce? </speak>"
   );
   expect(outputSpeech.type).to.equal("SSML");
 
