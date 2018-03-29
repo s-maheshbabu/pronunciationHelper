@@ -1,6 +1,8 @@
 const Alexa = require("alexa-sdk");
 const SKILL_ID = "amzn1.echo-sdk-ams.app.22799827-aae1-4115-9b48-e2b74e33ee03";
 
+const extraneousPhrases = require("../src/phrasesToStrip");
+
 const handlers = {
   "AMAZON.CancelIntent": function() {
     this.emit(":tell", "");
@@ -68,6 +70,11 @@ function pronounceTheWord() {
   ) {
     var wordToBePronoucned = wordToBePronoucnedSlot.value;
     console.log(`Spelling slot value provided by Alexa: ${wordToBePronoucned}`);
+
+    wordToBePronoucned = removeExtraneousPhrases(
+      wordToBePronoucned,
+      extraneousPhrases
+    );
 
     if (isAllLowerCase(wordToBePronoucned)) {
       // User is probably trying to pronounce a word without spelling it out (For ex, Alexa, ask pronunciations to pronounce 'how are you').
@@ -152,6 +159,39 @@ function incrementFailedAttemptsCount(attributes) {
 }
 
 // --------------- Utility functions -----------------------
+/**
+ * Searches if the given string has any of the extraneous phrases
+ * and if there are, finds the longest extraneous phrase and remove
+ * it.
+ * @param {String} input the string from which the extraneous phrase
+ * should be removed.
+ * @param {Array of Strings} extraneousPhrases the list of strings
+ * that should be removed from the input.
+ */
+function removeExtraneousPhrases(input, extraneousPhrases) {
+  if (!input) return input;
+
+  let longestExtraneousPhrase;
+  for (let i = 0; i < extraneousPhrases.length; i++) {
+    const extraneousPhrase = extraneousPhrases[i];
+
+    if (!extraneousPhrase) continue;
+
+    if (input.includes(extraneousPhrase)) {
+      if (
+        !longestExtraneousPhrase ||
+        longestExtraneousPhrase.length < extraneousPhrase.length
+      ) {
+        longestExtraneousPhrase = extraneousPhrase;
+      }
+    }
+  }
+
+  if (longestExtraneousPhrase)
+    return input.replace(longestExtraneousPhrase, "").trim();
+  return input.trim();
+}
+
 function isAllLowerCase(input) {
   return input === input.toLowerCase();
 }

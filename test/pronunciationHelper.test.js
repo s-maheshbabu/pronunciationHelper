@@ -6,6 +6,7 @@ const sinon = require("sinon");
 const decache = require("decache");
 
 const genericEvent = require("../test-data/event").event;
+const extraneousPhrases = require("../src/phrasesToStrip");
 
 let context;
 beforeEach(function() {
@@ -288,7 +289,7 @@ it("should render the welcome message on launch requests", function() {
   );
 });
 
-it("should spell the input and educate the user if the input is a all lower case. All lower case input usually means that the user asked for the pronunciation of a word or a phrase instead of spelling out a word character by character.", function() {
+it("should spell the input and educate the user if the input is all lower case. All lower case input usually means that the user asked for the pronunciation of a word or a phrase instead of spelling out a word character by character.", function() {
   const event = require("../test-data/event");
   const wordsWithLowerCaseCharacters = [
     "dog",
@@ -342,12 +343,19 @@ it("should spell the input and educate the user if the input is a all lower case
 
 it("should spell the words in the happy case", function() {
   const event = require("../test-data/event");
-  const wordsToBePronoucned = ["DOG", "A", "D.O.G.", "D.O.G"];
+  const wordsToBePronoucned = [
+    "DOG",
+    "   DOG",
+    "DOG   ",
+    "A",
+    "D.O.G.",
+    "D.O.G"
+  ];
 
   const succeedSpy = sinon.spy(context, "succeed");
   for (let i = 0; i < wordsToBePronoucned.length; i++) {
-    const wordToBePronoucned = wordsToBePronoucned[i];
-    event.request.intent.slots.Spelling.value = wordToBePronoucned;
+    event.request.intent.slots.Spelling.value = wordsToBePronoucned[i];
+    const wordToBePronoucned = wordsToBePronoucned[i].trim();
 
     succeedSpy.reset();
     unitUnderTest.handler(event, context);
@@ -384,8 +392,6 @@ it(`should spell the word in case the input word has spaces and other special ch
   const event = require("../test-data/event");
   const wordsToBePronoucnedWithSpaces = [
     "D O G",
-    "DOG   ",
-    "   DOG",
     "          DO       G   ",
     "          D. O       G   ",
     "          D O       G    "
@@ -414,6 +420,50 @@ it(`should spell the word in case the input word has spaces and other special ch
     const outputSpeech = responseUsed.outputSpeech;
     expect(outputSpeech.ssml).to.equal(
       "<speak> I would pronounce it as " + wordToBePronoucned + ". </speak>"
+    );
+    expect(outputSpeech.type).to.equal("SSML");
+
+    expect(responseUsed.reprompt).to.be.undefined;
+
+    const card = responseUsed.card;
+    expect(card.title).to.equal(`Pronunciation of ${wordToBePronoucned}`);
+    expect(card.type).to.equal("Simple");
+    expect(card.content).to.equal(
+      `Now that you know how to pronounce ${wordToBePronoucned}, you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronoucned}"`
+    );
+  }
+});
+
+it("should strip away extraneous phrases from the input and just pronounce the remaining word.", function() {
+  const event = require("../test-data/event");
+
+  const wordToBePronoucned = "DOG";
+  const inputs = [];
+  for (let i = 0; i < extraneousPhrases.length; i++) {
+    inputs.push(extraneousPhrases[i] + " " + wordToBePronoucned);
+  }
+
+  const succeedSpy = sinon.spy(context, "succeed");
+  for (let i = 0; i < inputs.length; i++) {
+    event.request.intent.slots.Spelling.value = inputs[i];
+
+    succeedSpy.reset();
+    unitUnderTest.handler(event, context);
+    assert(succeedSpy.calledOnce);
+
+    const argument = succeedSpy.args[0][0];
+    const sessionAttributesUsed = argument.sessionAttributes;
+    assert(
+      Object.keys(sessionAttributesUsed).length === 0 &&
+        sessionAttributesUsed.constructor === Object
+    );
+
+    const responseUsed = argument.response;
+    assert(responseUsed.shouldEndSession);
+
+    const outputSpeech = responseUsed.outputSpeech;
+    expect(outputSpeech.ssml).to.equal(
+      "<speak> It is pronounced as " + wordToBePronoucned + ". </speak>"
     );
     expect(outputSpeech.type).to.equal("SSML");
 
