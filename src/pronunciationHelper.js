@@ -3,6 +3,10 @@ const SKILL_ID = "amzn1.echo-sdk-ams.app.22799827-aae1-4115-9b48-e2b74e33ee03";
 
 const extraneousPhrases = require("../src/phrasesToStrip");
 
+const dictionary = require("dictionary-en-us");
+const nspell = require("nspell");
+let SpellChecker;
+
 const handlers = {
   "AMAZON.CancelIntent": function() {
     this.emit(":tell", "");
@@ -21,11 +25,31 @@ const handlers = {
   }
 };
 
+function initialize(callback) {
+  if (!SpellChecker) {
+    dictionary(function(err, dict) {
+      if (err) {
+        console.log("Error initializing the dictionary. " + err);
+        throw err;
+      }
+
+      SpellChecker = nspell(dict);
+      callback();
+    });
+  } else {
+    callback();
+  }
+}
+
 exports.handler = function(event, context, callback) {
   const alexa = Alexa.handler(event, context, callback);
   alexa.appId = SKILL_ID;
   alexa.registerHandlers(handlers);
-  alexa.execute();
+
+  // TODO: There is no unit testing around this initialization code.
+  initialize(() => {
+    alexa.execute();
+  });
 };
 
 // --------------- Functions that control the skill's behavior -----------------------
@@ -88,29 +112,30 @@ function pronounceTheWord() {
         `Pronunciation of '${wordToBePronoucned}'`,
         `Now that you know how to pronounce '${wordToBePronoucned}', you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronoucned}". By the way, you might have tried to pronounce a word or a phrase but I work best when you spell the word you need pronunciation for. Say "Ask Pronunciations for help" to learn more.`
       );
-    } else if (hasWhiteSpaces(wordToBePronoucned)) {
+    } else {
       // Remove all non-alphanumeric characters. This is to strip out spaces and dots that Alexa might provide in its slot values.
       // D. Og will get converted to DOg, for example.
       wordToBePronoucned = wordToBePronoucned.replace(/\W/g, "");
-      console.log(
-        `Word that will be delivered after pre-processing: ${wordToBePronoucned}`
-      );
-
-      this.emit(
-        ":tellWithCard",
-        `I would pronounce it as ${wordToBePronoucned}.`,
-        `Pronunciation of ${wordToBePronoucned}`,
-        `Now that you know how to pronounce ${wordToBePronoucned}, you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronoucned}"`
-      );
-    } else {
       console.log(`Word that will be delivered: ${wordToBePronoucned}`);
+      if (isMisspelled(wordToBePronoucned)) {
+        console.log(
+          `${wordToBePronoucned} has been reccognized to be an incorrect spelling.`
+        );
 
-      this.emit(
-        ":tellWithCard",
-        `It is pronounced as ${wordToBePronoucned}.`,
-        `Pronunciation of ${wordToBePronoucned}`,
-        `Now that you know how to pronounce ${wordToBePronoucned}, you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronoucned}"`
-      );
+        this.emit(
+          ":tellWithCard",
+          `I would pronounce it as ${wordToBePronoucned}.`,
+          `Pronunciation of ${wordToBePronoucned}`,
+          `Now that you know how to pronounce ${wordToBePronoucned}, you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronoucned}"`
+        );
+      } else {
+        this.emit(
+          ":tellWithCard",
+          `It is pronounced as ${wordToBePronoucned}.`,
+          `Pronunciation of ${wordToBePronoucned}`,
+          `Now that you know how to pronounce ${wordToBePronoucned}, you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronoucned}"`
+        );
+      }
     }
   } else {
     incrementFailedAttemptsCount(this.attributes);
@@ -196,6 +221,26 @@ function isAllLowerCase(input) {
   return input === input.toLowerCase();
 }
 
-function hasWhiteSpaces(input) {
-  return input.indexOf(" ") > -1;
+/**
+ * Checks the lower case version and the title case version of
+ * the input and if both are recognized as misspelled, returns
+ * true.
+ * @param {*} input word whose spelling is to be checked.
+ */
+function isMisspelled(input) {
+  return (
+    !SpellChecker.correct(input.toLowerCase()) &&
+    !SpellChecker.correct(toTitleCase(input))
+  );
+}
+
+/**
+ * Converts given string to title case. For example, san diEGo
+ * would be converted to San Diego.
+ * @param {*} input the string to be title cased.
+ */
+function toTitleCase(input) {
+  return input.replace(/\w\S*/g, function(txt) {
+    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+  });
 }

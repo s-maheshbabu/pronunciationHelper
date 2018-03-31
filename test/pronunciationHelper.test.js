@@ -344,18 +344,22 @@ it("should spell the input and educate the user if the input is all lower case. 
 it("should spell the words in the happy case", function() {
   const event = require("../test-data/event");
   const wordsToBePronoucned = [
-    "DOG",
-    "   DOG",
-    "DOG   ",
-    "A",
-    "D.O.G.",
-    "D.O.G"
+    ["DOG", "DOG"],
+    ["   DOG", "DOG"],
+    ["DOG   ", "DOG"],
+    ["A", "A"],
+    ["D.O.G.", "DOG"],
+    ["D.O.G", "DOG"],
+    ["D O G", "DOG"],
+    ["          DO       G   ", "DOG"],
+    ["          D. O       G   ", "DOG"],
+    ["          D O       G    ", "DOG"]
   ];
 
   const succeedSpy = sinon.spy(context, "succeed");
   for (let i = 0; i < wordsToBePronoucned.length; i++) {
-    event.request.intent.slots.Spelling.value = wordsToBePronoucned[i];
-    const wordToBePronoucned = wordsToBePronoucned[i].trim();
+    event.request.intent.slots.Spelling.value = wordsToBePronoucned[i][0];
+    const wordToBePronoucned = wordsToBePronoucned[i][1];
 
     succeedSpy.reset();
     unitUnderTest.handler(event, context);
@@ -388,20 +392,21 @@ it("should spell the words in the happy case", function() {
   }
 });
 
-it(`should spell the word in case the input word has spaces and other special characters in it.`, function() {
+it(`should render a less confident prompt when a misspelling is detected. This could be used fault or just Alexa hearing it wrong and so the response should be less confident from Alexa.`, function() {
   const event = require("../test-data/event");
-  const wordsToBePronoucnedWithSpaces = [
-    "D O G",
-    "          DO       G   ",
-    "          D. O       G   ",
-    "          D O       G    "
+  const wordsWithIncorrectSpellings = [
+    ["RETREIVE", "RETREIVE"],
+    ["   REND  EZV UOS ", "RENDEZVUOS"],
+    ["C.A.L.A.N.D.AR", "CALANDAR"],
+    ["QU. EUEU     ", "QUEUEU"]
   ];
-  const wordToBePronoucned = "DOG";
 
   const succeedSpy = sinon.spy(context, "succeed");
-  for (let i = 0; i < wordsToBePronoucnedWithSpaces.length; i++) {
+  for (let i = 0; i < wordsWithIncorrectSpellings.length; i++) {
     event.request.intent.slots.Spelling.value =
-      wordsToBePronoucnedWithSpaces[i];
+      wordsWithIncorrectSpellings[i][0];
+
+    const wordToBePronoucned = wordsWithIncorrectSpellings[i][1];
 
     succeedSpy.reset();
     unitUnderTest.handler(event, context);
