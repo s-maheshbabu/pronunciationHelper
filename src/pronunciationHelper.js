@@ -29,7 +29,8 @@ function initialize(callback) {
   if (!SpellChecker) {
     dictionary(function(err, dict) {
       if (err) {
-        console.log("Error initializing the dictionary. " + err);
+        // TODO: We should swallow this error and make the spell checking optional.
+        console.log("Error initializing the dictionary. ");
         throw err;
       }
 
