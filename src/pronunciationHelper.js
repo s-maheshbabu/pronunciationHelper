@@ -34,6 +34,9 @@ function initialize(callback) {
         throw err;
       }
 
+      // This is an expensive operation. SpellChecker should be made optional.
+      // The load should be kicked off so subsequent requests can benefit from it
+      // but the current session shouldn't be blocked on this.
       SpellChecker = nspell(dict);
       callback();
     });

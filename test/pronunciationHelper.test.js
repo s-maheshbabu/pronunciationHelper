@@ -8,6 +8,19 @@ const decache = require("decache");
 const genericEvent = require("../test-data/event").event;
 const extraneousPhrases = require("../src/phrasesToStrip");
 
+// Forcing all tests to wait until SpellChecker initialization
+// is done. Probably not the right thing to do? Or may be it
+// is. Revist this.
+before(done => {
+  const event = require("../test-data/event");
+  event.request.intent.slots.Spelling.value = "D. O. G";
+
+  unitUnderTest.handler(event, context, () => {
+    console.log("SpellChecker initialized");
+    done();
+  });
+});
+
 let context;
 beforeEach(function() {
   context = {
