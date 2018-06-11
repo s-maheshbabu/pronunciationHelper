@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/s-maheshbabu/pronunciationHelper#readme",
   "dependencies": {
-    "alexa-sdk": "^1.0.25",
+    "ask-sdk": "^2.0.0",
     "nspell": "^1.0.5",
     "dictionary-en-us": "^2.0.0"
   },

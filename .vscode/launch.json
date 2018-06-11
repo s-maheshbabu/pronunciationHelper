@@ -22,10 +22,11 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Selective Test",
+      "name": "Selective Tests",
       "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
       "args": [
         "-g",
+        // Regular expression to match the tests against. Matching tests will run
         "javascript_regex_pattern_matching_the_tests_that_should_be_run",
         "-u",
         "tdd",
