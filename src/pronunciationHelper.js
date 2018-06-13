@@ -1,4 +1,4 @@
-const Alexa = require("ask-sdk-core");
+const Alexa = require("ask-sdk");
 const SKILL_ID = "amzn1.echo-sdk-ams.app.22799827-aae1-4115-9b48-e2b74e33ee03";
 
 const extraneousPhrases = require("../src/phrasesToStrip");
