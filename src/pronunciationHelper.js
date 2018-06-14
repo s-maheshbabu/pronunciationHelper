@@ -132,12 +132,6 @@ let skill;
 exports.handler = async function(event, context) {
   console.debug(`REQUEST: ${JSON.stringify(event)}`);
 
-  try {
-    await spellcheckpromise();
-  } catch (error) {
-    console.log(`Error initializing the dictionary. Error: ${error}`);
-  }
-
   if (!skill) {
     skill = Alexa.SkillBuilders.custom()
       .addRequestHandlers(
