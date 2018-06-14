@@ -192,15 +192,15 @@ function pronounceTheWord(handlerInput) {
     wordToBePronoucnedSlot !== undefined &&
     wordToBePronoucnedSlot.value !== undefined
   ) {
-    var wordToBePronoucned = wordToBePronoucnedSlot.value;
-    console.log(`Spelling slot value provided by Alexa: ${wordToBePronoucned}`);
+    var wordToBePronounced = wordToBePronoucnedSlot.value;
+    console.log(`Spelling slot value provided by Alexa: ${wordToBePronounced}`);
 
-    wordToBePronoucned = removeExtraneousPhrases(
-      wordToBePronoucned,
+    wordToBePronounced = removeExtraneousPhrases(
+      wordToBePronounced,
       extraneousPhrases
     );
 
-    if (isAllLowerCase(wordToBePronoucned)) {
+    if (isAllLowerCase(wordToBePronounced)) {
       // User is probably trying to pronounce a word without spelling it out (For ex, Alexa, ask pronunciations to pronounce 'how are you').
       // Not the purpose of this skill but we can still try to pronounce it and then educate the user.
       console.log(
@@ -209,38 +209,38 @@ function pronounceTheWord(handlerInput) {
 
       return responseBuilder
         .speak(
-          `I would pronounce it as ${wordToBePronoucned}. By the way, I work best when you spell the word you want me to pronounce, instead of saying the entire word or phrase.`
+          `I would pronounce it as ${wordToBePronounced}. By the way, I work best when you spell the word you want me to pronounce, instead of saying the entire word or phrase.`
         )
         .withSimpleCard(
-          `Pronunciation of '${wordToBePronoucned}'`,
-          `Now that you know how to pronounce '${wordToBePronoucned}', you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronoucned}". By the way, you might have tried to pronounce a word or a phrase but I work best when you spell the word you need pronunciation for. Say "Ask Pronunciations for help" to learn more.`
+          `Pronunciation of '${wordToBePronounced}'`,
+          `Now that you know how to pronounce '${wordToBePronounced}', you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronounced}". By the way, you might have tried to pronounce a word or a phrase but I work best when you spell the word you need pronunciation for. Say "Ask Pronunciations for help" to learn more.`
         )
         .withShouldEndSession(true)
         .getResponse();
     } else {
       // Remove all non-alphanumeric characters. This is to strip out spaces and dots that Alexa might provide in its slot values.
       // D. Og will get converted to DOg, for example.
-      wordToBePronoucned = wordToBePronoucned.replace(/\W/g, "");
-      console.log(`Word that will be delivered: ${wordToBePronoucned}`);
-      if (isMisspelled(wordToBePronoucned)) {
+      wordToBePronounced = wordToBePronounced.replace(/\W/g, "");
+      console.log(`Word that will be delivered: ${wordToBePronounced}`);
+      if (isMisspelled(wordToBePronounced)) {
         console.log(
-          `${wordToBePronoucned} has been reccognized to be an incorrect spelling.`
+          `${wordToBePronounced} has been reccognized to be an incorrect spelling.`
         );
 
         return responseBuilder
-          .speak(`I would pronounce it as ${wordToBePronoucned}.`)
+          .speak(`I would pronounce it as ${wordToBePronounced}.`)
           .withSimpleCard(
-            `Pronunciation of '${wordToBePronoucned}'`,
-            `Now that you know how to pronounce ${wordToBePronoucned}, you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronoucned}"`
+            `Pronunciation of '${wordToBePronounced}'`,
+            `Now that you know how to pronounce ${wordToBePronounced}, you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronounced}"`
           )
           .withShouldEndSession(true)
           .getResponse();
       } else {
         return responseBuilder
-          .speak(`It is pronounced as ${wordToBePronoucned}.`)
+          .speak(`It is pronounced as ${wordToBePronounced}.`)
           .withSimpleCard(
-            `Pronunciation of '${wordToBePronoucned}'`,
-            `Now that you know how to pronounce ${wordToBePronoucned}, you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronoucned}"`
+            `Pronunciation of '${wordToBePronounced}'`,
+            `Now that you know how to pronounce ${wordToBePronounced}, you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronounced}"`
           )
           .withShouldEndSession(true)
           .getResponse();
