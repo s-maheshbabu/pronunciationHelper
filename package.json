@@ -2,7 +2,7 @@
   "name": "pronunciationhelper",
   "version": "1.0.0",
   "description": "An Alexa skill to help with pronunciation of words.",
-  "main": "pronunciationHelper.js",
+  "main": "index.js",
   "watch": {
     "test": "{src,test}/*.js"
   },
@@ -21,9 +21,10 @@
   },
   "homepage": "https://github.com/s-maheshbabu/pronunciationHelper#readme",
   "dependencies": {
+    "app-module-path": "^2.2.0",
     "ask-sdk": "^2.0.0",
-    "nspell": "^1.0.5",
-    "dictionary-en-us": "^2.0.0"
+    "dictionary-en-us": "^2.0.0",
+    "nspell": "^1.0.5"
   },
   "devDependencies": {
     "chai": "^3.4.1",

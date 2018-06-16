@@ -1,30 +1,17 @@
-const unitUnderTest = require("../src/pronunciationHelper");
+const unitUnderTest = require("../src/index");
 
 const expect = require("chai").expect;
 const assert = require("chai").assert;
 const decache = require("decache");
 
-const extraneousPhrases = require("../src/phrasesToStrip");
+const extraneousPhrases = require("constants/PhrasesToStrip");
+const STATES = require("constants/States").states;
+const SpellChecker = require("spellcheck/SpellChecker");
 
-const STATES = require("../src/Constants").states;
+const context = {};
 
-const dictionary = require("dictionary-en-us");
-const nspell = require("nspell");
-let SpellChecker;
-
-let context;
-
-// The async/await pattern forces each test to wait until
-// SpellChecker initialization is done.
-// Need to revisit this. Is this the right thing to do? May
-// be having some tests where the initialization hasn't
-// happened will help because nspell will be made optional
-// anyways in the source code.
-before(done => {
-  dictionary(function(error, dict) {
-    SpellChecker = nspell(dict);
-    done();
-  });
+before(async () => {
+  await SpellChecker.init();
 });
 
 afterEach(function() {
@@ -395,7 +382,7 @@ it(`should render a less confident prompt when a misspelling is detected. This c
       STATES.SUGGEST_CORRECT_SPELLINGS
     );
     expect(sessionAttributes.suggestedSpellings).to.deep.equal(
-      SpellChecker.suggest(wordToBePronounced)
+      SpellChecker.getSuggestedSpellings(wordToBePronounced)
     );
 
     const responseUsed = response.response;
@@ -464,7 +451,9 @@ it(`should cycle through all available spell suggestions as the user keeps askin
   const event = require("../test-data/event");
   const wordToBePronounced = "SDOT";
 
-  const spellSuggestions = SpellChecker.suggest(wordToBePronounced);
+  const spellSuggestions = SpellChecker.getSuggestedSpellings(
+    wordToBePronounced
+  );
 
   event.request.intent.slots.Spelling.value = wordToBePronounced;
   let response = await unitUnderTest.handler(event, context);

@@ -5,7 +5,7 @@ grunt.initConfig({
   lambda_invoke: {
     default: {
       options: {
-        file_name: "src/pronunciationHelper.js",
+        file_name: "src/index.js",
         event: "test-data/event.json"
       }
     }
