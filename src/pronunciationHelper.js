@@ -2,24 +2,51 @@ const Alexa = require("ask-sdk");
 const SKILL_ID = "amzn1.echo-sdk-ams.app.22799827-aae1-4115-9b48-e2b74e33ee03";
 
 const extraneousPhrases = require("../src/phrasesToStrip");
+const STATES = require("../src/Constants").states;
 
 const dictionary = require("dictionary-en-us");
 const nspell = require("nspell");
 let SpellChecker;
 
 // --------------- Intent Handlers -----------------------
-const CancelAndStopIntentHandler = {
+const CancelAndStopAndNoIntentHandler = {
   canHandle(handlerInput) {
     return (
       handlerInput.requestEnvelope.request.type === "IntentRequest" &&
       (handlerInput.requestEnvelope.request.intent.name ===
         "AMAZON.CancelIntent" ||
         handlerInput.requestEnvelope.request.intent.name ===
-          "AMAZON.StopIntent")
+          "AMAZON.StopIntent" ||
+        handlerInput.requestEnvelope.request.intent.name === "AMAZON.NoIntent")
     );
   },
   handle(handlerInput) {
     return handlerInput.responseBuilder
+      .withShouldEndSession(true)
+      .getResponse();
+  }
+};
+
+const YesIntentHandler = {
+  canHandle(handlerInput) {
+    return (
+      handlerInput.requestEnvelope.request.type === "IntentRequest" &&
+      handlerInput.requestEnvelope.request.intent.name === "AMAZON.YesIntent"
+    );
+  },
+  handle(handlerInput) {
+    const { attributesManager, responseBuilder } = handlerInput;
+
+    const sessionAttributes = attributesManager.getSessionAttributes() || {};
+    if (
+      sessionAttributes.state === STATES.SUGGEST_CORRECT_SPELLINGS &&
+      Array.isArray(sessionAttributes.suggestedSpellings) &&
+      sessionAttributes.suggestedSpellings.length
+    )
+      return renderSpellSuggestions(handlerInput);
+
+    return handlerInput.responseBuilder
+      .speak("Sorry, something went wrong. Please try again.")
       .withShouldEndSession(true)
       .getResponse();
   }
@@ -130,15 +157,14 @@ const SpellCheckerInitializationInterceptor = {
 let skill;
 
 exports.handler = async function(event, context) {
-  console.debug(`REQUEST: ${JSON.stringify(event)}`);
-
   if (!skill) {
     skill = Alexa.SkillBuilders.custom()
       .addRequestHandlers(
+        CancelAndStopAndNoIntentHandler,
+        YesIntentHandler,
         LaunchRequestHandler,
         HowToPronounceIntentHandler,
         HelpIntentHandler,
-        CancelAndStopIntentHandler,
         SessionEndedRequestHandler
       )
       .addRequestInterceptors(SpellCheckerInitializationInterceptor)
@@ -170,6 +196,45 @@ Ask pnonunciations to pronounce P. I. L. A. N. I.`
     )
     .withShouldEndSession(false)
     .getResponse();
+}
+
+/*
+Extracts the spelling suggestions from the session attributes and renders the
+first one. It also removes the rendered suggestion from the session attributes
+so we don't keep repeating.
+
+If there is only one suggestion remaining in the session, it gets rendered and
+the session closed.
+
+This method operates under the assumption that there is at least one suggestion in
+the session attributes. Behavior is undeterministic, if there are no suggestions in
+the session attributes.
+*/
+function renderSpellSuggestions(handlerInput) {
+  const { attributesManager, responseBuilder } = handlerInput;
+
+  const sessionAttributes = attributesManager.getSessionAttributes();
+  const suggestedSpellings = sessionAttributes.suggestedSpellings;
+
+  const suggestion = suggestedSpellings.shift();
+  attributesManager.setSessionAttributes(sessionAttributes);
+
+  if (suggestedSpellings.length) {
+    return responseBuilder
+      .speak(
+        `If you meant <say-as interpret-as="spell-out">${suggestion}</say-as>, it is pronounced as ${suggestion}. Would you like to hear another suggestion?`
+      )
+      .reprompt(`I have more suggestions. Would you like to hear them?`)
+      .withShouldEndSession(false)
+      .getResponse();
+  } else {
+    return responseBuilder
+      .speak(
+        `If you meant <say-as interpret-as="spell-out">${suggestion}</say-as>, it is pronounced as ${suggestion}.`
+      )
+      .withShouldEndSession(true)
+      .getResponse();
+  }
 }
 
 /**
@@ -221,13 +286,36 @@ function pronounceTheWord(handlerInput) {
           `${wordToBePronounced} has been reccognized to be an incorrect spelling.`
         );
 
-        return responseBuilder
-          .speak(`I would pronounce it as ${wordToBePronounced}.`)
+        const response = responseBuilder
           .withSimpleCard(
             `Pronunciation of '${wordToBePronounced}'`,
             `Now that you know how to pronounce ${wordToBePronounced}, you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronounced}"`
           )
-          .withShouldEndSession(true)
+          .withShouldEndSession(true);
+
+        // If there are any suggested spellings, save them in the session and offer to pronounce the suggested words.
+        const suggestedSpellings = getSuggestedSpellings(wordToBePronounced);
+        if (Array.isArray(suggestedSpellings) && suggestedSpellings.length) {
+          const attributes = attributesManager.getSessionAttributes() || {};
+
+          attributes.state = STATES.SUGGEST_CORRECT_SPELLINGS;
+          attributes.suggestedSpellings = suggestedSpellings;
+
+          attributesManager.setSessionAttributes(attributes);
+
+          return response
+            .speak(
+              `I would pronounce it as ${wordToBePronounced}. By the way, I have a feeling that I misheard you. I have some suggestions on what you might have been trying to pronounce. Do you want to hear them?`
+            )
+            .reprompt(
+              `While I pronounced what I heard, I have a feeling that I either misheard you or you gave an incorrect spelling. I have some suggestions on what you might have been trying to pronounce. Do you want to hear them?`
+            )
+            .withShouldEndSession(false)
+            .getResponse();
+        }
+
+        return response
+          .speak(`I would pronounce it as ${wordToBePronounced}.`)
           .getResponse();
       } else {
         return responseBuilder
@@ -344,6 +432,17 @@ function isMisspelled(input) {
     !SpellChecker.correct(input.toLowerCase()) &&
     !SpellChecker.correct(toTitleCase(input))
   );
+}
+
+/**
+ * Lower cases the input and obtains spelling suggestions.
+ * If there are no suggestions, an empty array is returned.
+ *
+ * @param {*} input word for which spell suggestions are to
+ * be obtained.
+ */
+function getSuggestedSpellings(input) {
+  return SpellChecker.suggest(input);
 }
 
 /**

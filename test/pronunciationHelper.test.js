@@ -2,11 +2,15 @@ const unitUnderTest = require("../src/pronunciationHelper");
 
 const expect = require("chai").expect;
 const assert = require("chai").assert;
-const sinon = require("sinon");
 const decache = require("decache");
 
-const genericEvent = require("../test-data/event").event;
 const extraneousPhrases = require("../src/phrasesToStrip");
+
+const STATES = require("../src/Constants").states;
+
+const dictionary = require("dictionary-en-us");
+const nspell = require("nspell");
+let SpellChecker;
 
 let context;
 
@@ -16,6 +20,12 @@ let context;
 // be having some tests where the initialization hasn't
 // happened will help because nspell will be made optional
 // anyways in the source code.
+before(done => {
+  dictionary(function(error, dict) {
+    SpellChecker = nspell(dict);
+    done();
+  });
+});
 
 afterEach(function() {
   decache("../test-data/event");
@@ -195,6 +205,23 @@ it("handles the AMAZON.CancelIntent properly", async () => {
   expect(responseUsed.reprompt).to.be.undefined;
 });
 
+it("handles the AMAZON.NoIntent properly", async () => {
+  const event = require("../test-data/no_intent_event");
+
+  const response = await unitUnderTest.handler(event, context);
+
+  const sessionAttributesUsed = response.sessionAttributes;
+  assert(
+    Object.keys(sessionAttributesUsed).length === 0 &&
+      sessionAttributesUsed.constructor === Object
+  );
+
+  const responseUsed = response.response;
+  assert(responseUsed.shouldEndSession);
+  expect(responseUsed.outputSpeech).to.be.undefined;
+  expect(responseUsed.reprompt).to.be.undefined;
+});
+
 it("handles the AMAZON.StopIntent properly", async () => {
   const event = require("../test-data/stop_intent_event");
 
@@ -345,7 +372,7 @@ it("should spell the words in the happy case", async () => {
   }
 });
 
-it(`should render a less confident prompt when a misspelling is detected. This could be used fault or just Alexa hearing it wrong and so the response should be less confident from Alexa.`, async () => {
+it(`should render a less confident prompt when a misspelling is detected. This could be a user mistake or just Alexa hearing them wrong and so the response should be less confident. The session attributes should also be updated to allow spell correction`, async () => {
   const event = require("../test-data/event");
   const wordsWithIncorrectSpellings = [
     ["RETREIVE", "RETREIVE"],
@@ -358,33 +385,199 @@ it(`should render a less confident prompt when a misspelling is detected. This c
     event.request.intent.slots.Spelling.value =
       wordsWithIncorrectSpellings[i][0];
 
-    const wordToBePronoucned = wordsWithIncorrectSpellings[i][1];
+    const wordToBePronounced = wordsWithIncorrectSpellings[i][1];
 
     const response = await unitUnderTest.handler(event, context);
 
-    const sessionAttributesUsed = response.sessionAttributes;
-    assert(
-      Object.keys(sessionAttributesUsed).length === 0 &&
-        sessionAttributesUsed.constructor === Object
+    const sessionAttributes = response.sessionAttributes;
+    assert(sessionAttributes);
+    expect(sessionAttributes.state).to.deep.equal(
+      STATES.SUGGEST_CORRECT_SPELLINGS
+    );
+    expect(sessionAttributes.suggestedSpellings).to.deep.equal(
+      SpellChecker.suggest(wordToBePronounced)
     );
 
     const responseUsed = response.response;
-    assert(responseUsed.shouldEndSession);
+    assert(!responseUsed.shouldEndSession);
 
     const outputSpeech = responseUsed.outputSpeech;
     expect(outputSpeech.ssml).to.equal(
-      "<speak>I would pronounce it as " + wordToBePronoucned + ".</speak>"
+      "<speak>I would pronounce it as " +
+        wordToBePronounced +
+        ". By the way, I have a feeling that I misheard you. I have some suggestions on what you might have been trying to pronounce. Do you want to hear them?</speak>"
     );
     expect(outputSpeech.type).to.equal("SSML");
 
-    expect(responseUsed.reprompt).to.be.undefined;
+    const repromptSpeech = responseUsed.reprompt.outputSpeech;
+    expect(repromptSpeech.ssml).to.equal(
+      "<speak>While I pronounced what I heard, I have a feeling that I either misheard you or you gave an incorrect spelling. I have some suggestions on what you might have been trying to pronounce. Do you want to hear them?</speak>"
+    );
+    expect(repromptSpeech.type).to.equal("SSML");
 
     const card = responseUsed.card;
-    expect(card.title).to.equal(`Pronunciation of '${wordToBePronoucned}'`);
+    expect(card.title).to.equal(`Pronunciation of '${wordToBePronounced}'`);
     expect(card.type).to.equal("Simple");
     expect(card.content).to.equal(
-      `Now that you know how to pronounce ${wordToBePronoucned}, you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronoucned}"`
+      `Now that you know how to pronounce ${wordToBePronounced}, you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronounced}"`
     );
+  }
+});
+
+it(`should render a less confident prompt but not offer to make suggestions when there are no suggestions that could be derived from the misspelled word.`, async () => {
+  const event = require("../test-data/event");
+  const misspelledWordWithoutSuggestions = "ASLIEJDINVJDUDN";
+
+  event.request.intent.slots.Spelling.value = misspelledWordWithoutSuggestions;
+  const response = await unitUnderTest.handler(event, context);
+
+  const sessionAttributesUsed = response.sessionAttributes;
+  assert(
+    Object.keys(sessionAttributesUsed).length === 0 &&
+      sessionAttributesUsed.constructor === Object
+  );
+
+  const responseUsed = response.response;
+  assert(responseUsed.shouldEndSession);
+
+  const outputSpeech = responseUsed.outputSpeech;
+  expect(outputSpeech.ssml).to.equal(
+    "<speak>I would pronounce it as " +
+      misspelledWordWithoutSuggestions +
+      ".</speak>"
+  );
+  expect(outputSpeech.type).to.equal("SSML");
+
+  expect(responseUsed.reprompt).to.be.undefined;
+
+  const card = responseUsed.card;
+  expect(card.title).to.equal(
+    `Pronunciation of '${misspelledWordWithoutSuggestions}'`
+  );
+  expect(card.type).to.equal("Simple");
+  expect(card.content).to.equal(
+    `Now that you know how to pronounce ${misspelledWordWithoutSuggestions}, you can ask Alexa for its meaning by saying "Alexa, define ${misspelledWordWithoutSuggestions}"`
+  );
+});
+
+it(`should cycle through all available spell suggestions as the user keeps asking for them. When all suggestions are rendered, the session should be ended with an appropriate message.`, async () => {
+  const event = require("../test-data/event");
+  const wordToBePronounced = "SDOT";
+
+  const spellSuggestions = SpellChecker.suggest(wordToBePronounced);
+
+  event.request.intent.slots.Spelling.value = wordToBePronounced;
+  let response = await unitUnderTest.handler(event, context);
+
+  let sessionAttributes = response.sessionAttributes;
+
+  // Simulate user asking for spell suggestions. Maintain sessionAttributes from previous interaction.
+  const yesEvent = require("../test-data/yes_intent_event");
+  yesEvent.session.attributes = sessionAttributes;
+
+  for (let index = 0; index < spellSuggestions.length; index++) {
+    const suggestion = spellSuggestions[index];
+
+    response = await unitUnderTest.handler(yesEvent, context);
+    sessionAttributes = response.sessionAttributes;
+
+    // Up until the last but one suggestion
+    if (index < spellSuggestions.length - 1) {
+      assert(sessionAttributes);
+      expect(sessionAttributes.state).to.deep.equal(
+        STATES.SUGGEST_CORRECT_SPELLINGS
+      );
+      expect(sessionAttributes.suggestedSpellings).to.deep.equal(
+        spellSuggestions.slice(index + 1, spellSuggestions.length)
+      );
+
+      responseUsed = response.response;
+      assert(!responseUsed.shouldEndSession);
+
+      outputSpeech = responseUsed.outputSpeech;
+      expect(outputSpeech.ssml).to.equal(
+        '<speak>If you meant <say-as interpret-as="spell-out">' +
+          suggestion +
+          "</say-as>, it is pronounced as " +
+          suggestion +
+          ". Would you like to hear another suggestion?</speak>"
+      );
+      expect(outputSpeech.type).to.equal("SSML");
+
+      repromptSpeech = responseUsed.reprompt.outputSpeech;
+      expect(repromptSpeech.ssml).to.equal(
+        "<speak>I have more suggestions. Would you like to hear them?</speak>"
+      );
+      expect(repromptSpeech.type).to.equal("SSML");
+
+      // Maintain sessionAttributes from the previous interaction.
+      yesEvent.session.attributes = sessionAttributes;
+    } else {
+      // While rendering the last suggestion.
+      responseUsed = response.response;
+      assert(responseUsed.shouldEndSession);
+
+      outputSpeech = responseUsed.outputSpeech;
+      expect(outputSpeech.ssml).to.equal(
+        '<speak>If you meant <say-as interpret-as="spell-out">' +
+          suggestion +
+          "</say-as>, it is pronounced as " +
+          suggestion +
+          ".</speak>"
+      );
+      expect(outputSpeech.type).to.equal("SSML");
+    }
+  }
+});
+
+it(`should render an error message if we received a YesIntent but the session attributes are in an unexpected state.`, async () => {
+  const yesEvent = require("../test-data/yes_intent_event");
+
+  const invalidSessionAttributes = [];
+
+  // Simulate the state in the session being undefined.
+  const missingStateSessionAttributes = {};
+  missingStateSessionAttributes.state = undefined;
+  missingStateSessionAttributes.suggestedSpellings = ["SOMETHING"];
+  invalidSessionAttributes.push(missingStateSessionAttributes);
+
+  // Simulate the state in the session being invalid.
+  const invalidStateSessionAttributes = {};
+  invalidStateSessionAttributes.state = "UNEXPECTED_STATE";
+  missingStateSessionAttributes.suggestedSpellings = ["SOMETHING"];
+  invalidSessionAttributes.push(invalidStateSessionAttributes);
+
+  // Simulate the suggestedSpellings in the session being undefined.
+  const missingSuggestedSpellingsSessionAttributes = {};
+  missingSuggestedSpellingsSessionAttributes.state =
+    STATES.SUGGEST_CORRECT_SPELLINGS;
+  missingSuggestedSpellingsSessionAttributes.suggestedSpellings = undefined;
+  invalidSessionAttributes.push(missingSuggestedSpellingsSessionAttributes);
+
+  // Simulate the suggestedSpellings in the session being an empty array.
+  // It should have at least one suggestion.
+  const emptySuggestedSpellingsSessionAttributes = {};
+  emptySuggestedSpellingsSessionAttributes.state =
+    STATES.SUGGEST_CORRECT_SPELLINGS;
+  emptySuggestedSpellingsSessionAttributes.suggestedSpellings = [];
+  invalidSessionAttributes.push(emptySuggestedSpellingsSessionAttributes);
+
+  for (let index = 0; index < invalidSessionAttributes.length; index++) {
+    const invalidSessionAttribute = invalidSessionAttributes[index];
+
+    yesEvent.session.attributes = invalidSessionAttribute;
+
+    let response = await unitUnderTest.handler(yesEvent, context);
+
+    let responseUsed = response.response;
+    assert(responseUsed.shouldEndSession);
+
+    let outputSpeech = responseUsed.outputSpeech;
+    expect(outputSpeech.ssml).to.equal(
+      "<speak>Sorry, something went wrong. Please try again.</speak>"
+    );
+    expect(outputSpeech.type).to.equal("SSML");
+    expect(responseUsed.reprompt).to.be.undefined;
   }
 });
 
