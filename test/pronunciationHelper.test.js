@@ -150,13 +150,13 @@ it("handles the AMAZON.HelpIntent properly", async () => {
 
   const outputSpeech = responseUsed.outputSpeech;
   expect(outputSpeech.ssml).to.equal(
-    `<speak>I can help you pronounce English words in my accent. You just need to spell the word you need the pronunciation for. For example, you can say, pronounce B. I. T. S. <break time="100ms"/> and I will tell you that it is pronounced as bits. So go ahead and spell the word you want me to pronounce.</speak>`
+    `<speak>I can help you pronounce English words in my accent. You just need to spell the word you need the pronunciation for. For example, you can say, pronounce <say-as interpret-as="spell-out">BITS</say-as> <break time="100ms"/> and I will tell you that it is pronounced as bits. So go ahead and spell the word you want me to pronounce.</speak>`
   );
   expect(outputSpeech.type).to.equal("SSML");
 
   const reprompt = responseUsed.reprompt;
   expect(reprompt.outputSpeech.ssml).to.equal(
-    "<speak>What word do you want the pronunciation for? You can say things like, what is the pronunciation for P. I. L. A. N. I.</speak>"
+    `<speak>What word do you want the pronunciation for? You can say things like, what is the pronunciation for <say-as interpret-as="spell-out">PILANI</say-as></speak>`
   );
   expect(reprompt.outputSpeech.type).to.equal("SSML");
 });
@@ -255,13 +255,13 @@ it("should render the welcome message on launch requests", async () => {
 
   const outputSpeech = responseUsed.outputSpeech;
   expect(outputSpeech.ssml).to.equal(
-    "<speak>Welcome to Pronunciations. You can say things like, pronounce B. I. T. S. So, what word do you want me to pronounce?</speak>"
+    `<speak>Welcome to Pronunciations. You can say things like, pronounce <say-as interpret-as="spell-out">BITS</say-as> <break time="100ms"/> So, what word do you want me to pronounce?</speak>`
   );
   expect(outputSpeech.type).to.equal("SSML");
 
   const reprompt = responseUsed.reprompt;
   expect(reprompt.outputSpeech.ssml).to.equal(
-    "<speak>What word do you want the pronunciation for? You can say things like, what is the pronunciation for P. I. L. A. N. I.</speak>"
+    `<speak>What word do you want the pronunciation for? You can say things like, what is the pronunciation for <say-as interpret-as="spell-out">PILANI</say-as></speak>`
   );
   expect(reprompt.outputSpeech.type).to.equal("SSML");
 
