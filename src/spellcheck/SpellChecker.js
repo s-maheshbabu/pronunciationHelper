@@ -1,5 +1,6 @@
 const dictionary = require("dictionary-en-us");
 const nspell = require("nspell");
+const dictionaryAdditions = require("spellcheck/DictionaryAdditions");
 
 let SpellChecker;
 
@@ -22,6 +23,10 @@ module.exports.init = () => {
         // The load should be kicked off so subsequent requests can benefit from it
         // but the current session shouldn't be blocked on this.
         SpellChecker = nspell(dict);
+
+        dictionaryAdditions.forEach(wordToBeAdded => {
+          SpellChecker.add(wordToBeAdded);
+        });
 
         resolve();
       });
