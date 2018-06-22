@@ -5,12 +5,19 @@ const assert = require("chai").assert;
 
 const dictionaryAdditions = require("spellcheck/DictionaryAdditions");
 
-before(async () => {
-  await SpellChecker.init();
-});
+var request = require("request");
+var cheerio = require("cheerio");
 
-it("should recognize the words added to dictionary. Such words are added because they are not part of the dictionary but something user's expect to work. For example, the word 'alexa'", async () => {
-  dictionaryAdditions.forEach(wordAddedToDictionary => {
-    expect(SpellChecker.isMisspelled("alexa")).to.equal(false);
+it("testing", async done => {
+  var searchTerm = "daca";
+  var url = "https://www.merriam-webster.com/word-of-the-day/2018-06-14";
+
+  request(url, function(err, resp, body) {
+    $ = cheerio.load(body);
+    links = $(".word-and-pronunciation h1"); //use your CSS selector here
+    $(links).each(function(i, link) {
+      console.log("-----" + $(link).text());
+    });
+    done();
   });
 });
