@@ -2,6 +2,11 @@ const STATES = require("constants/States").states;
 const SpellChecker = require("spellcheck/SpellChecker");
 
 const extraneousPhrases = require("constants/PhrasesToStrip");
+const wordPronouncedDocument = require("apl/document/WordPronouncedDocument.json");
+const wordPronouncedDatasource = require("apl/data/WordPronouncedDatasource");
+
+const APL_DOCUMENT_TYPE = "Alexa.Presentation.APL.RenderDocument";
+const APL_DOCUMENT_VERSION = "1.0";
 
 const HowToPronounceIntentHandler = {
   canHandle(handlerInput) {
@@ -101,13 +106,24 @@ function pronounceTheWord(handlerInput) {
           .speak(`I would pronounce it as ${wordToBePronounced}.`)
           .getResponse();
       } else {
+        const educativePrompt = `Now that you know how to pronounce ${wordToBePronounced}, you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronounced}"`;
+
         return responseBuilder
           .speak(`It is pronounced as ${wordToBePronounced}.`)
           .withSimpleCard(
             `Pronunciation of '${wordToBePronounced}'`,
-            `Now that you know how to pronounce ${wordToBePronounced}, you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronounced}"`
+            educativePrompt
           )
           .withShouldEndSession(true)
+          .addDirective({
+            type: APL_DOCUMENT_TYPE,
+            version: APL_DOCUMENT_VERSION,
+            document: wordPronouncedDocument,
+            datasources: wordPronouncedDatasource(
+              wordToBePronounced,
+              educativePrompt
+            )
+          })
           .getResponse();
       }
     }

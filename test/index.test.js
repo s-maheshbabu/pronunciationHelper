@@ -8,6 +8,11 @@ const extraneousPhrases = require("constants/PhrasesToStrip");
 const STATES = require("constants/States").states;
 const SpellChecker = require("spellcheck/SpellChecker");
 
+const APL_DOCUMENT_TYPE = "Alexa.Presentation.APL.RenderDocument";
+const APL_DOCUMENT_VERSION = "1.0";
+const wordPronouncedDocument = require("apl/document/WordPronouncedDocument.json");
+const wordPronouncedDatasource = require("apl/data/WordPronouncedDatasource");
+
 const context = {};
 
 before(async () => {
@@ -329,7 +334,7 @@ it("should spell the words in the happy case", async () => {
 
   for (let i = 0; i < wordsToBePronoucned.length; i++) {
     event.request.intent.slots.Spelling.value = wordsToBePronoucned[i][0];
-    const wordToBePronoucned = wordsToBePronoucned[i][1];
+    const wordToBePronounced = wordsToBePronoucned[i][1];
 
     const response = await unitUnderTest.handler(event, context);
 
@@ -344,17 +349,29 @@ it("should spell the words in the happy case", async () => {
 
     const outputSpeech = responseUsed.outputSpeech;
     expect(outputSpeech.ssml).to.equal(
-      "<speak>It is pronounced as " + wordToBePronoucned + ".</speak>"
+      "<speak>It is pronounced as " + wordToBePronounced + ".</speak>"
     );
     expect(outputSpeech.type).to.equal("SSML");
 
     expect(responseUsed.reprompt).to.be.undefined;
 
     const card = responseUsed.card;
-    expect(card.title).to.equal(`Pronunciation of '${wordToBePronoucned}'`);
+    expect(card.title).to.equal(`Pronunciation of '${wordToBePronounced}'`);
     expect(card.type).to.equal("Simple");
     expect(card.content).to.equal(
-      `Now that you know how to pronounce ${wordToBePronoucned}, you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronoucned}"`
+      `Now that you know how to pronounce ${wordToBePronounced}, you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronounced}"`
+    );
+
+    verifyAPLDirectiveStructure(responseUsed.directives);
+    const directive = responseUsed.directives[0];
+    expect(directive.document).to.eql(wordPronouncedDocument);
+
+    const actualDatasource = directive.datasources;
+    expect(actualDatasource).to.eql(
+      wordPronouncedDatasource(
+        wordToBePronounced,
+        `Now that you know how to pronounce ${wordToBePronounced}, you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronounced}"`
+      )
     );
   }
 });
@@ -573,10 +590,10 @@ it(`should render an error message if we received a YesIntent but the session at
 it("should strip away extraneous phrases from the input and just pronounce the remaining word.", async () => {
   const event = require("../test-data/event");
 
-  const wordToBePronoucned = "DOG";
+  const wordToBePronounced = "DOG";
   const inputs = [];
   for (let i = 0; i < extraneousPhrases.length; i++) {
-    inputs.push(extraneousPhrases[i] + " " + wordToBePronoucned);
+    inputs.push(extraneousPhrases[i] + " " + wordToBePronounced);
   }
 
   for (let i = 0; i < inputs.length; i++) {
@@ -595,17 +612,42 @@ it("should strip away extraneous phrases from the input and just pronounce the r
 
     const outputSpeech = responseUsed.outputSpeech;
     expect(outputSpeech.ssml).to.equal(
-      "<speak>It is pronounced as " + wordToBePronoucned + ".</speak>"
+      "<speak>It is pronounced as " + wordToBePronounced + ".</speak>"
     );
     expect(outputSpeech.type).to.equal("SSML");
 
     expect(responseUsed.reprompt).to.be.undefined;
 
     const card = responseUsed.card;
-    expect(card.title).to.equal(`Pronunciation of '${wordToBePronoucned}'`);
+    expect(card.title).to.equal(`Pronunciation of '${wordToBePronounced}'`);
     expect(card.type).to.equal("Simple");
     expect(card.content).to.equal(
-      `Now that you know how to pronounce ${wordToBePronoucned}, you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronoucned}"`
+      `Now that you know how to pronounce ${wordToBePronounced}, you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronounced}"`
+    );
+
+    verifyAPLDirectiveStructure(responseUsed.directives);
+    const directive = responseUsed.directives[0];
+    expect(directive.document).to.eql(wordPronouncedDocument);
+
+    const actualDatasource = directive.datasources;
+    expect(actualDatasource).to.eql(
+      wordPronouncedDatasource(
+        wordToBePronounced,
+        `Now that you know how to pronounce ${wordToBePronounced}, you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronounced}"`
+      )
     );
   }
 });
+
+/**
+ * Verify the structure of the APL directives. We check that we are sending exactly
+ * one directive and that it is of the right type and version.
+ */
+function verifyAPLDirectiveStructure(directives) {
+  expect(directives).is.not.null;
+  expect(directives.length).is.equal(1);
+
+  const directive = directives[0];
+  expect(directive.type).to.equal(APL_DOCUMENT_TYPE);
+  expect(directive.version).to.equal(APL_DOCUMENT_VERSION);
+}
