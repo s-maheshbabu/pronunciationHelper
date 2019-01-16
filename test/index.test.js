@@ -302,17 +302,28 @@ it("should spell the input and educate the user if the input is all lower case. 
 
     expect(responseUsed.reprompt).to.be.undefined;
 
+    const educativeVisualMessage = `Now that you know how to pronounce '${
+      wordsWithLowerCaseCharacters[i]
+    }', you can ask Alexa for its meaning by saying "Alexa, define ${
+      wordsWithLowerCaseCharacters[i]
+    }". By the way, you might have tried to pronounce a word or a phrase but I work best when you spell the word you need pronunciation for. Say "Ask Pronunciations for help" to learn more.`;
     const card = responseUsed.card;
     expect(card.title).to.equal(
       `Pronunciation of '${wordsWithLowerCaseCharacters[i]}'`
     );
     expect(card.type).to.equal("Simple");
-    expect(card.content).to.equal(
-      `Now that you know how to pronounce '${
-        wordsWithLowerCaseCharacters[i]
-      }', you can ask Alexa for its meaning by saying "Alexa, define ${
-        wordsWithLowerCaseCharacters[i]
-      }". By the way, you might have tried to pronounce a word or a phrase but I work best when you spell the word you need pronunciation for. Say "Ask Pronunciations for help" to learn more.`
+    expect(card.content).to.equal(educativeVisualMessage);
+
+    verifyAPLDirectiveStructure(responseUsed.directives);
+    const directive = responseUsed.directives[0];
+    expect(directive.document).to.eql(wordPronouncedDocument);
+
+    const actualDatasource = directive.datasources;
+    expect(actualDatasource).to.eql(
+      wordPronouncedDatasource(
+        `I pronounced '${wordsWithLowerCaseCharacters[i]}'`,
+        educativeVisualMessage
+      )
     );
   }
 });
@@ -355,12 +366,11 @@ it("should spell the words in the happy case", async () => {
 
     expect(responseUsed.reprompt).to.be.undefined;
 
+    const educativeVisualMessage = `Now that you know how to pronounce ${wordToBePronounced}, you can ask for its meaning by saying "Alexa, define ${wordToBePronounced}"`;
     const card = responseUsed.card;
     expect(card.title).to.equal(`Pronunciation of '${wordToBePronounced}'`);
     expect(card.type).to.equal("Simple");
-    expect(card.content).to.equal(
-      `Now that you know how to pronounce ${wordToBePronounced}, you can ask for its meaning by saying "Alexa, define ${wordToBePronounced}"`
-    );
+    expect(card.content).to.equal(educativeVisualMessage);
 
     verifyAPLDirectiveStructure(responseUsed.directives);
     const directive = responseUsed.directives[0];
@@ -369,8 +379,8 @@ it("should spell the words in the happy case", async () => {
     const actualDatasource = directive.datasources;
     expect(actualDatasource).to.eql(
       wordPronouncedDatasource(
-        `I pronounced ${wordToBePronounced}`,
-        `Now that you know how to pronounce ${wordToBePronounced}, you can ask for its meaning by saying "Alexa, define ${wordToBePronounced}"`
+        `I pronounced '${wordToBePronounced}'`,
+        educativeVisualMessage
       )
     );
   }
@@ -618,12 +628,11 @@ it("should strip away extraneous phrases from the input and just pronounce the r
 
     expect(responseUsed.reprompt).to.be.undefined;
 
+    const educativeVisualMessage = `Now that you know how to pronounce ${wordToBePronounced}, you can ask for its meaning by saying "Alexa, define ${wordToBePronounced}"`;
     const card = responseUsed.card;
     expect(card.title).to.equal(`Pronunciation of '${wordToBePronounced}'`);
     expect(card.type).to.equal("Simple");
-    expect(card.content).to.equal(
-      `Now that you know how to pronounce ${wordToBePronounced}, you can ask for its meaning by saying "Alexa, define ${wordToBePronounced}"`
-    );
+    expect(card.content).to.equal(educativeVisualMessage);
 
     verifyAPLDirectiveStructure(responseUsed.directives);
     const directive = responseUsed.directives[0];
@@ -632,8 +641,8 @@ it("should strip away extraneous phrases from the input and just pronounce the r
     const actualDatasource = directive.datasources;
     expect(actualDatasource).to.eql(
       wordPronouncedDatasource(
-        `I pronounced ${wordToBePronounced}`,
-        `Now that you know how to pronounce ${wordToBePronounced}, you can ask for its meaning by saying "Alexa, define ${wordToBePronounced}"`
+        `I pronounced '${wordToBePronounced}'`,
+        educativeVisualMessage
       )
     );
   }
