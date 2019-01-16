@@ -359,7 +359,7 @@ it("should spell the words in the happy case", async () => {
     expect(card.title).to.equal(`Pronunciation of '${wordToBePronounced}'`);
     expect(card.type).to.equal("Simple");
     expect(card.content).to.equal(
-      `Now that you know how to pronounce ${wordToBePronounced}, you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronounced}"`
+      `Now that you know how to pronounce ${wordToBePronounced}, you can ask for its meaning by saying "Alexa, define ${wordToBePronounced}"`
     );
 
     verifyAPLDirectiveStructure(responseUsed.directives);
@@ -622,7 +622,7 @@ it("should strip away extraneous phrases from the input and just pronounce the r
     expect(card.title).to.equal(`Pronunciation of '${wordToBePronounced}'`);
     expect(card.type).to.equal("Simple");
     expect(card.content).to.equal(
-      `Now that you know how to pronounce ${wordToBePronounced}, you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronounced}"`
+      `Now that you know how to pronounce ${wordToBePronounced}, you can ask for its meaning by saying "Alexa, define ${wordToBePronounced}"`
     );
 
     verifyAPLDirectiveStructure(responseUsed.directives);

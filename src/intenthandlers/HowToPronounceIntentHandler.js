@@ -106,7 +106,7 @@ function pronounceTheWord(handlerInput) {
           .speak(`I would pronounce it as ${wordToBePronounced}.`)
           .getResponse();
       } else {
-        const educativePrompt = `Now that you know how to pronounce ${wordToBePronounced}, you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronounced}"`;
+        const educativePrompt = `Now that you know how to pronounce ${wordToBePronounced}, you can ask for its meaning by saying "Alexa, define ${wordToBePronounced}"`;
 
         return responseBuilder
           .speak(`It is pronounced as ${wordToBePronounced}.`)
