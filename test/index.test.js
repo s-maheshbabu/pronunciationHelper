@@ -369,8 +369,8 @@ it("should spell the words in the happy case", async () => {
     const actualDatasource = directive.datasources;
     expect(actualDatasource).to.eql(
       wordPronouncedDatasource(
-        wordToBePronounced,
-        `Now that you know how to pronounce ${wordToBePronounced}, you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronounced}"`
+        `I pronounced ${wordToBePronounced}`,
+        `Now that you know how to pronounce ${wordToBePronounced}, you can ask for its meaning by saying "Alexa, define ${wordToBePronounced}"`
       )
     );
   }
@@ -632,8 +632,8 @@ it("should strip away extraneous phrases from the input and just pronounce the r
     const actualDatasource = directive.datasources;
     expect(actualDatasource).to.eql(
       wordPronouncedDatasource(
-        wordToBePronounced,
-        `Now that you know how to pronounce ${wordToBePronounced}, you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronounced}"`
+        `I pronounced ${wordToBePronounced}`,
+        `Now that you know how to pronounce ${wordToBePronounced}, you can ask for its meaning by saying "Alexa, define ${wordToBePronounced}"`
       )
     );
   }
