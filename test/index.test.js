@@ -345,7 +345,12 @@ it("should spell the words in the happy case", async () => {
     ["D O G", "DOG"],
     ["          DO       G   ", "DOG"],
     ["          D. O       G   ", "DOG"],
-    ["          D O       G    ", "DOG"]
+    ["          D O       G    ", "DOG"],
+    ["D. E. ma. N. d.", "DEMAND"],
+    ["D. e. m. a. n. d.", "DEMAND"],
+    ["D. emAn. D.", "DEMAND"],
+    ["d. E. M. A. N. D.", "DEMAND"],
+    ["D. E. M. A. nd", "DEMAND"]
   ];
 
   for (let i = 0; i < wordsToBePronoucned.length; i++) {

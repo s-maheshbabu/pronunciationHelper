@@ -50,8 +50,8 @@ module.exports.isMisspelled = input => {
 };
 
 /**
- * Lower cases the input and obtains spelling suggestions.
- * If there are no suggestions, an empty array is returned.
+ * Obtains spell suggestions for the given word. If there are no
+ * suggestions, an empty array is returned.
  *
  * @param {*} input word for which spell suggestions are to
  * be obtained.

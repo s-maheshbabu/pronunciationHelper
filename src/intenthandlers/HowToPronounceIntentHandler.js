@@ -79,7 +79,7 @@ function pronounceTheWord(handlerInput) {
     } else {
       // Remove all non-alphanumeric characters. This is to strip out spaces and dots that Alexa might provide in its slot values.
       // D. Og will get converted to DOg, for example.
-      wordToBePronounced = wordToBePronounced.replace(/\W/g, "");
+      wordToBePronounced = wordToBePronounced.replace(/\W/g, "").toUpperCase();
       console.log(`Word that will be delivered: ${wordToBePronounced}`);
       if (SpellChecker.isMisspelled(wordToBePronounced)) {
         console.log(
