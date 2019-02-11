@@ -16,8 +16,7 @@ grunt.initConfig({
         aliases: "beta",
         enableVersioning: true
       },
-      arn:
-        "arn:aws:lambda:us-east-1:837603326872:function:pronunciationHelper-development"
+      arn: "arn:aws:lambda:us-east-1:837603326872:function:pronunciationHelper"
     },
     prod: {
       options: {

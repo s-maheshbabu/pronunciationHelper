@@ -1,8 +1,8 @@
-module.exports = (title, text) => {
+module.exports = (originalWord, text) => {
   return {
-    bodyTemplateData: {
+    bodyTemplate2Data: {
       type: "object",
-      objectId: "bodyTemplateSample",
+      objectId: "bt2Sample",
       backgroundImage: {
         contentDescription: null,
         smallSourceUrl: null,
@@ -10,29 +10,57 @@ module.exports = (title, text) => {
         sources: [
           {
             url:
-              "https://d2o906d8ln7ui1.cloudfront.net/images/BT1_Background.png",
+              "https://d2o906d8ln7ui1.cloudfront.net/images/BT2_Background.png",
             size: "small",
             widthPixels: 0,
             heightPixels: 0
           },
           {
             url:
-              "https://d2o906d8ln7ui1.cloudfront.net/images/BT1_Background.png",
+              "https://d2o906d8ln7ui1.cloudfront.net/images/BT2_Background.png",
             size: "large",
             widthPixels: 0,
             heightPixels: 0
           }
         ]
       },
-      title: title,
+      title: "Welcome to pronunciations",
+      image: {
+        contentDescription: null,
+        smallSourceUrl: null,
+        largeSourceUrl: null,
+        sources: [
+          {
+            url: "https://d2o906d8ln7ui1.cloudfront.net/images/details_01.png",
+            size: "small",
+            widthPixels: 0,
+            heightPixels: 0
+          },
+          {
+            url: "https://d2o906d8ln7ui1.cloudfront.net/images/details_01.png",
+            size: "large",
+            widthPixels: 0,
+            heightPixels: 0
+          }
+        ]
+      },
       textContent: {
-        primaryText: {
+        title: {
+          type: "PlainText",
+          text: `I pronounced '${originalWord}'`
+        },
+        subtitle: {
           type: "PlainText",
           text: text
+        },
+        primaryText: {
+          type: "PlainText",
+          text: "Please try again if I misheard you"
         }
       },
       logoUrl:
-        "https://d2o906d8ln7ui1.cloudfront.net/images/cheeseskillicon.png"
+        "https://d2o906d8ln7ui1.cloudfront.net/images/cheeseskillicon.png",
+      hintText: `Try, "Alexa, define ${originalWord}"`
     }
   };
 };

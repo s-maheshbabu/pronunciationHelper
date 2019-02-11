@@ -321,7 +321,7 @@ it("should spell the input and educate the user if the input is all lower case. 
     const actualDatasource = directive.datasources;
     expect(actualDatasource).to.eql(
       wordPronouncedDatasource(
-        `I pronounced '${wordsWithLowerCaseCharacters[i]}'`,
+        wordsWithLowerCaseCharacters[i],
         educativeVisualMessage
       )
     );
@@ -378,10 +378,7 @@ it("should spell the words in the happy case", async () => {
 
     const actualDatasource = directive.datasources;
     expect(actualDatasource).to.eql(
-      wordPronouncedDatasource(
-        `I pronounced '${wordToBePronounced}'`,
-        educativeVisualMessage
-      )
+      wordPronouncedDatasource(wordToBePronounced, educativeVisualMessage)
     );
   }
 });
@@ -640,10 +637,7 @@ it("should strip away extraneous phrases from the input and just pronounce the r
 
     const actualDatasource = directive.datasources;
     expect(actualDatasource).to.eql(
-      wordPronouncedDatasource(
-        `I pronounced '${wordToBePronounced}'`,
-        educativeVisualMessage
-      )
+      wordPronouncedDatasource(wordToBePronounced, educativeVisualMessage)
     );
   }
 });

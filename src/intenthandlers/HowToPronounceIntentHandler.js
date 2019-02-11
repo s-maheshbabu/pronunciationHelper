@@ -67,7 +67,7 @@ function pronounceTheWord(handlerInput) {
           version: APL_DOCUMENT_VERSION,
           document: wordPronouncedDocument,
           datasources: wordPronouncedDatasource(
-            `I pronounced '${wordToBePronounced}'`,
+            wordToBePronounced,
             educativeVisualMessage
           )
         })
@@ -130,7 +130,7 @@ function pronounceTheWord(handlerInput) {
             version: APL_DOCUMENT_VERSION,
             document: wordPronouncedDocument,
             datasources: wordPronouncedDatasource(
-              `I pronounced '${wordToBePronounced}'`,
+              wordToBePronounced,
               educativeVisualMessage
             )
           })
