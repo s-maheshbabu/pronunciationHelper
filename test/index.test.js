@@ -344,7 +344,9 @@ it("should spell the input and educate the user if the input is all lower case. 
       wordsWithLowerCaseCharacters[i]
     }', you can ask Alexa for its meaning by saying "Alexa, define ${
       wordsWithLowerCaseCharacters[i]
-    }". By the way, you might have tried to pronounce a word or a phrase but I work best when you spell the word you need pronunciation for. Say "Ask Pronunciations for help" to learn more.`;
+    }".
+
+By the way, you might have tried to pronounce a word or a phrase but I work best when you spell the word you need pronunciation for. Say "Ask Pronunciations for help" to learn more.`;
     const card = responseUsed.card;
     expect(card.title).to.equal(
       `Pronunciation of '${wordsWithLowerCaseCharacters[i]}'`
