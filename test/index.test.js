@@ -18,6 +18,9 @@ const MAX_SPELL_SUGGESTIONS_TO_DISPLAY =
 const wordPronouncedDocument = require("apl/document/WordPronouncedDocument.json");
 const wordPronouncedDatasource = require("apl/data/WordPronouncedDatasource");
 
+const skillInfoDocument = require("apl/document/SkillInfoDocument.json");
+const skillInfoDatasource = require("apl/data/SkillInfoDatasource");
+
 const context = {};
 
 before(async () => {
@@ -156,6 +159,21 @@ it("handles the AMAZON.HelpIntent properly", async () => {
     `<speak>What word do you want the pronunciation for? You can say things like, what is the pronunciation for <say-as interpret-as="spell-out">PILANI</say-as></speak>`
   );
   expect(reprompt.outputSpeech.type).to.equal("SSML");
+
+  verifyAPLDirectiveStructure(responseUsed.directives);
+  const directive = responseUsed.directives[0];
+  expect(directive.document).to.eql(wordPronouncedDocument);
+
+  const actualDatasource = directive.datasources;
+  expect(actualDatasource).to.eql(
+    skillInfoDatasource(
+      `I can help you with the pronunciations of English words and phrases. Just spell the word you want me to pronounce. For example, you can say - `,
+      `Alexa, open pronunciations
+Alexa, ask pronunciations to pronounce G. Y. R. O.
+Alexa, open pronunciations and help me pronounce W. A. L. T.
+Alexa, pronounce the word D. O. U. B. T.`
+    )
+  );
 });
 
 it("should render an error message for unknown intents.", async () => {
@@ -271,6 +289,21 @@ Pronounce D. O. G.
 How to pronounce B. I. T. S.
 What is the pronunciation for C. A. T.
 Ask pnonunciations to pronounce P. I. L. A. N. I.`
+  );
+
+  verifyAPLDirectiveStructure(responseUsed.directives);
+  const directive = responseUsed.directives[0];
+  expect(directive.document).to.eql(wordPronouncedDocument);
+
+  const actualDatasource = directive.datasources;
+  expect(actualDatasource).to.eql(
+    skillInfoDatasource(
+      `I can help you with the pronunciations of English words and phrases. Just spell the word you want me to pronounce. For example, you can say - `,
+      `Alexa, open pronunciations
+Alexa, ask pronunciations to pronounce G. Y. R. O.
+Alexa, open pronunciations and help me pronounce W. A. L. T.
+Alexa, pronounce the word D. O. U. B. T.`
+    )
   );
 });
 
