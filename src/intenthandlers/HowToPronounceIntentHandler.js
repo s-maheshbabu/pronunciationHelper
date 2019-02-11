@@ -1,12 +1,16 @@
 const STATES = require("constants/States").states;
+const APL_CONSTANTS = require("constants/APL");
 const SpellChecker = require("spellcheck/SpellChecker");
 
 const extraneousPhrases = require("constants/PhrasesToStrip");
 const wordPronouncedDocument = require("apl/document/WordPronouncedDocument.json");
 const wordPronouncedDatasource = require("apl/data/WordPronouncedDatasource");
 
-const APL_DOCUMENT_TYPE = "Alexa.Presentation.APL.RenderDocument";
-const APL_DOCUMENT_VERSION = "1.0";
+const APL_DOCUMENT_TYPE = APL_CONSTANTS.APL_DOCUMENT_TYPE;
+const APL_DOCUMENT_VERSION = APL_CONSTANTS.APL_DOCUMENT_VERSION;
+
+const MAX_SPELL_SUGGESTIONS_TO_DISPLAY =
+  APL_CONSTANTS.MAX_SPELL_SUGGESTIONS_TO_DISPLAY;
 
 const HowToPronounceIntentHandler = {
   canHandle(handlerInput) {
@@ -109,11 +113,34 @@ function pronounceTheWord(handlerInput) {
               `While I pronounced what I heard, I have a feeling that I either misheard you or you gave an incorrect spelling. I have some suggestions on what you might have been trying to pronounce. Do you want to hear them?`
             )
             .withShouldEndSession(false)
+            .addDirective({
+              type: APL_DOCUMENT_TYPE,
+              version: APL_DOCUMENT_VERSION,
+              document: wordPronouncedDocument,
+              datasources: wordPronouncedDatasource(
+                wordToBePronounced,
+                `I have a feeling I misheard you though. Here are some words that are similar to what I heard. Do you want me to pronounce them?`,
+                suggestedSpellings
+                  .slice(0, MAX_SPELL_SUGGESTIONS_TO_DISPLAY)
+                  .join(", ")
+              )
+            })
             .getResponse();
         }
 
+        // We recognized a misspelling but don't have any suggestions. Could be a non-English word, the user just messing
+        // with Alexa or an actual gap in the spell check library. In any case, we will just pronounce it anyways.
         return response
           .speak(`I would pronounce it as ${wordToBePronounced}.`)
+          .addDirective({
+            type: APL_DOCUMENT_TYPE,
+            version: APL_DOCUMENT_VERSION,
+            document: wordPronouncedDocument,
+            datasources: wordPronouncedDatasource(
+              wordToBePronounced,
+              `To be honest, I don't recognize this word but I pronounced it anyways because you asked for it.`
+            )
+          })
           .getResponse();
       } else {
         const educativeVisualMessage = `Now that you know how to pronounce ${wordToBePronounced}, you can ask for its meaning by saying "Alexa, define ${wordToBePronounced}"`;

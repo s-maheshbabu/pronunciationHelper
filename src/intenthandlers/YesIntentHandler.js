@@ -1,4 +1,14 @@
 const STATES = require("constants/States").states;
+const APL_CONSTANTS = require("constants/APL");
+
+const wordPronouncedDocument = require("apl/document/WordPronouncedDocument.json");
+const wordPronouncedDatasource = require("apl/data/WordPronouncedDatasource");
+
+const APL_DOCUMENT_TYPE = APL_CONSTANTS.APL_DOCUMENT_TYPE;
+const APL_DOCUMENT_VERSION = APL_CONSTANTS.APL_DOCUMENT_VERSION;
+
+const MAX_SPELL_SUGGESTIONS_TO_DISPLAY =
+  APL_CONSTANTS.MAX_SPELL_SUGGESTIONS_TO_DISPLAY;
 
 module.exports = YesIntentHandler = {
   canHandle(handlerInput) {
@@ -53,6 +63,18 @@ function renderSpellSuggestions(handlerInput) {
       )
       .reprompt(`I have more suggestions. Would you like to hear them?`)
       .withShouldEndSession(false)
+      .addDirective({
+        type: APL_DOCUMENT_TYPE,
+        version: APL_DOCUMENT_VERSION,
+        document: wordPronouncedDocument,
+        datasources: wordPronouncedDatasource(
+          suggestion,
+          `Here are more words that are similar to what I originally heard. Do you want me to pronounce them?`,
+          suggestedSpellings
+            .slice(0, MAX_SPELL_SUGGESTIONS_TO_DISPLAY)
+            .join(", ")
+        )
+      })
       .getResponse();
   } else {
     return responseBuilder
@@ -60,6 +82,16 @@ function renderSpellSuggestions(handlerInput) {
         `If you meant <say-as interpret-as="spell-out">${suggestion}</say-as>, it is pronounced as ${suggestion}.`
       )
       .withShouldEndSession(true)
+      .addDirective({
+        type: APL_DOCUMENT_TYPE,
+        version: APL_DOCUMENT_VERSION,
+        document: wordPronouncedDocument,
+        datasources: wordPronouncedDatasource(
+          suggestion,
+          `Now that you know how to pronounce ${suggestion}, you can ask Alexa for its meaning by saying "Alexa, define ${suggestion}"`,
+          `Thank you for using pronunciations.`
+        )
+      })
       .getResponse();
   }
 }

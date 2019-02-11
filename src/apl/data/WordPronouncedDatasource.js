@@ -1,4 +1,7 @@
-module.exports = (originalWord, text) => {
+module.exports = (originalWord, text, additionalInfo) => {
+  const secondaryText = additionalInfo
+    ? additionalInfo
+    : "Please try again if I misheard you";
   return {
     bodyTemplate2Data: {
       type: "object",
@@ -49,13 +52,13 @@ module.exports = (originalWord, text) => {
           type: "PlainText",
           text: `I pronounced '${originalWord}'`
         },
-        subtitle: {
+        primaryText: {
           type: "PlainText",
           text: text
         },
-        primaryText: {
+        secondaryText: {
           type: "PlainText",
-          text: "Please try again if I misheard you"
+          text: secondaryText
         }
       },
       logoUrl:

@@ -217,12 +217,12 @@
                       },
                       {
                         "type": "Text",
-                        "text": "${payload.bodyTemplate2Data.textContent.subtitle.text}",
+                        "text": "${payload.bodyTemplate2Data.textContent.primaryText.text}",
                         "style": "textStylePrimary"
                       },
                       {
                         "type": "Text",
-                        "text": "${payload.bodyTemplate2Data.textContent.primaryText.text}",
+                        "text": "${payload.bodyTemplate2Data.textContent.secondaryText.text}",
                         "spacing": "@spacingSmall",
                         "paddingTop": "40dp",
                         "paddingRight": "70dp",
