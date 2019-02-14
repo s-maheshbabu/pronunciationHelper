@@ -10,14 +10,14 @@ module.exports = (skillSummary, usageInfo) => {
         sources: [
           {
             url:
-              "https://d2o906d8ln7ui1.cloudfront.net/images/BT2_Background.png",
+              "https://s3.amazonaws.com/pronunciations-alexa-skill/background.jpg",
             size: "small",
             widthPixels: 0,
             heightPixels: 0
           },
           {
             url:
-              "https://d2o906d8ln7ui1.cloudfront.net/images/BT2_Background.png",
+              "https://s3.amazonaws.com/pronunciations-alexa-skill/background.jpg",
             size: "large",
             widthPixels: 0,
             heightPixels: 0
@@ -31,13 +31,15 @@ module.exports = (skillSummary, usageInfo) => {
         largeSourceUrl: null,
         sources: [
           {
-            url: "https://d2o906d8ln7ui1.cloudfront.net/images/details_01.png",
+            url:
+              "https://s3.amazonaws.com/pronunciations-alexa-skill/background.jpg",
             size: "small",
             widthPixels: 0,
             heightPixels: 0
           },
           {
-            url: "https://d2o906d8ln7ui1.cloudfront.net/images/details_01.png",
+            url:
+              "https://s3.amazonaws.com/pronunciations-alexa-skill/background.jpg",
             size: "large",
             widthPixels: 0,
             heightPixels: 0
@@ -59,7 +61,7 @@ module.exports = (skillSummary, usageInfo) => {
         }
       },
       logoUrl:
-        "https://d2o906d8ln7ui1.cloudfront.net/images/cheeseskillicon.png",
+        "https://s3.amazonaws.com/pronunciations-alexa-skill/512x512.png",
       hintText: `Try, "Alexa, open pronunciations and pronounce G. Y. R. O.`
     }
   };
