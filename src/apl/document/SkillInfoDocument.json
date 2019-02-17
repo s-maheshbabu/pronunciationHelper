@@ -158,14 +158,6 @@
                     "style": "textStylePrimary",
                     "width": "70vw",
                     "textAlign": "center"
-                  },
-                  {
-                    "type": "Text",
-                    "text": "${payload.bodyTemplate2Data.textContent.primaryText.text}",
-                    "paddingTop": 20,
-                    "style": "textStylePrimary",
-                    "width": "70vw",
-                    "textAlign": "center"
                   }
                 ]
               }
