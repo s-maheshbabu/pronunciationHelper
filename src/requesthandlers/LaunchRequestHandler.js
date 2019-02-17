@@ -23,7 +23,7 @@ function getWelcomeResponse(handlerInput) {
       `Welcome to Pronunciations. You can say things like, pronounce <say-as interpret-as="spell-out">BITS</say-as> <break time="100ms"/> So, what word do you want me to pronounce?`
     )
     .reprompt(
-      `What word do you want the pronunciation for? You can say things like, what is the pronunciation for <say-as interpret-as="spell-out">PILANI</say-as>`
+      `What word do you want the pronunciation for? You can say things like, what is the pronunciation for <say-as interpret-as="spell-out">ROBOT</say-as>`
     )
     .withSimpleCard(
       `Welcome to Pronunciations`,
@@ -31,7 +31,7 @@ function getWelcomeResponse(handlerInput) {
 Pronounce D. O. G.
 How to pronounce B. I. T. S.
 What is the pronunciation for C. A. T.
-Ask pnonunciations to pronounce P. I. L. A. N. I.`
+Ask pnonunciations to pronounce A. L. E. X. A.`
     )
     .withShouldEndSession(false)
     .addDirective({

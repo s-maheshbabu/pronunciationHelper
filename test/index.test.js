@@ -156,7 +156,7 @@ it("handles the AMAZON.HelpIntent properly", async () => {
 
   const reprompt = responseUsed.reprompt;
   expect(reprompt.outputSpeech.ssml).to.equal(
-    `<speak>What word do you want the pronunciation for? You can say things like, what is the pronunciation for <say-as interpret-as="spell-out">PILANI</say-as></speak>`
+    `<speak>What word do you want the pronunciation for? You can say things like, what is the pronunciation for <say-as interpret-as="spell-out">ROBOT</say-as></speak>`
   );
   expect(reprompt.outputSpeech.type).to.equal("SSML");
 
@@ -276,7 +276,7 @@ it("should render the welcome message on launch requests", async () => {
 
   const reprompt = responseUsed.reprompt;
   expect(reprompt.outputSpeech.ssml).to.equal(
-    `<speak>What word do you want the pronunciation for? You can say things like, what is the pronunciation for <say-as interpret-as="spell-out">PILANI</say-as></speak>`
+    `<speak>What word do you want the pronunciation for? You can say things like, what is the pronunciation for <say-as interpret-as="spell-out">ROBOT</say-as></speak>`
   );
   expect(reprompt.outputSpeech.type).to.equal("SSML");
 
@@ -288,7 +288,7 @@ it("should render the welcome message on launch requests", async () => {
 Pronounce D. O. G.
 How to pronounce B. I. T. S.
 What is the pronunciation for C. A. T.
-Ask pnonunciations to pronounce P. I. L. A. N. I.`
+Ask pnonunciations to pronounce A. L. E. X. A.`
   );
 
   verifyAPLDirectiveStructure(responseUsed.directives);
