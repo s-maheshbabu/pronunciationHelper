@@ -11,6 +11,7 @@ const LaunchRequestHandler = require("requesthandlers/LaunchRequestHandler");
 const SessionEndedRequestHandler = require("requesthandlers/SessionEndedRequestHandler");
 
 const SpellCheckerInitializationInterceptor = require("interceptors/SpellCheckerInitializationInterceptor");
+const APLSupportVerificationInterceptor = require("interceptors/APLSupportVerificationInterceptor");
 
 const ErrorHandler = require("errors/ErrorHandler");
 
@@ -28,7 +29,10 @@ exports.handler = async function(event, context) {
         HelpIntentHandler,
         SessionEndedRequestHandler
       )
-      .addRequestInterceptors(SpellCheckerInitializationInterceptor)
+      .addRequestInterceptors(
+        SpellCheckerInitializationInterceptor,
+        APLSupportVerificationInterceptor
+      )
       .addErrorHandlers(ErrorHandler)
       .create();
   }
