@@ -28,7 +28,7 @@
     "nspell": "^1.0.5"
   },
   "devDependencies": {
-    "chai": "^3.4.1",
+    "chai": "^4.2.0",
     "decache": "^4.4.0",
     "grunt": "0.4.*",
     "grunt-aws-lambda": "^0.13.0",

@@ -13,6 +13,8 @@ const SessionEndedRequestHandler = require("requesthandlers/SessionEndedRequestH
 const SpellCheckerInitializationInterceptor = require("interceptors/SpellCheckerInitializationInterceptor");
 const APLSupportVerificationInterceptor = require("interceptors/APLSupportVerificationInterceptor");
 
+const ResponseSanitizationInterceptor = require("interceptors/ResponseSanitizationInterceptor");
+
 const ErrorHandler = require("errors/ErrorHandler");
 
 // --------------- Skill Initialization -----------------------
@@ -33,6 +35,7 @@ exports.handler = async function(event, context) {
         SpellCheckerInitializationInterceptor,
         APLSupportVerificationInterceptor
       )
+      .addResponseInterceptors(ResponseSanitizationInterceptor)
       .addErrorHandlers(ErrorHandler)
       .create();
   }
