@@ -181,7 +181,7 @@ By the way, you might have tried to pronounce a word or a phrase but I work best
         )
         .withSimpleCard(
           cardTitle,
-          `Am sorry, am having trouble understanding. Please try again.`
+          `Sorry, I'm having trouble understanding. Please try again.`
         )
         .withShouldEndSession(false)
         .getResponse();
@@ -190,11 +190,11 @@ By the way, you might have tried to pronounce a word or a phrase but I work best
 
       return responseBuilder
         .speak(
-          `Sorry, am having trouble understanding. Please try again later. Good bye.`
+          `Sorry, I'm having trouble understanding. Please try again later. Good bye.`
         )
         .withSimpleCard(
           cardTitle,
-          `Am sorry, am having trouble understanding. Please try again.`
+          `Sorry, I'm having trouble understanding. Please try again.`
         )
         .withShouldEndSession(true)
         .getResponse();

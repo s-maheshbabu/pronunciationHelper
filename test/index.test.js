@@ -65,7 +65,7 @@ it("should increment the failure attempts count and reprompt the user if the spe
   expect(card.title).to.equal("Pronunciations");
   expect(card.type).to.equal("Simple");
   expect(card.content).to.equal(
-    "Am sorry, am having trouble understanding. Please try again."
+    "Sorry, I'm having trouble understanding. Please try again."
   );
 });
 
@@ -100,7 +100,7 @@ it("should increment the failure attempts count and reprompt the user if the spe
   expect(card.title).to.equal("Pronunciations");
   expect(card.type).to.equal("Simple");
   expect(card.content).to.equal(
-    "Am sorry, am having trouble understanding. Please try again."
+    "Sorry, I'm having trouble understanding. Please try again."
   );
 });
 
@@ -132,7 +132,7 @@ it("should increment the failure attempts count in session attributes each time 
 
   const outputSpeech = responseUsed.outputSpeech;
   expect(outputSpeech.ssml).to.equal(
-    "<speak>Sorry, am having trouble understanding. Please try again later. Good bye.</speak>"
+    "<speak>Sorry, I'm having trouble understanding. Please try again later. Good bye.</speak>"
   );
   expect(outputSpeech.type).to.equal("SSML");
 
@@ -142,7 +142,7 @@ it("should increment the failure attempts count in session attributes each time 
   expect(card.title).to.equal(`Pronunciations`);
   expect(card.type).to.equal("Simple");
   expect(card.content).to.equal(
-    `Am sorry, am having trouble understanding. Please try again.`
+    `Sorry, I'm having trouble understanding. Please try again.`
   );
 });
 
