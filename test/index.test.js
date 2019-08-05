@@ -34,116 +34,159 @@ afterEach(function () {
 });
 
 it("should increment the failure attempts count and reprompt the user if the spelling slot is missing altogether", async () => {
-  const event = require("../test-data/event");
-  // TODO: Once APL support is added for the 'invalid input' scenarios, this test can be
-  // modified to look like the rest. For now, manually removing APL support from the event object.
-  delete event.context.System.device.supportedInterfaces["Alexa.Presentation.APL"];
+  const events = getEventObjects("../test-data/event");
 
-  event.request.intent.slots.Spelling = undefined;
+  for (let j = 0; j < events.length; j++) {
+    let event = events[j];
 
-  const response = await unitUnderTest.handler(event, context);
+    event.request.intent.slots.Spelling = undefined;
 
-  const sessionAttributesUsed = response.sessionAttributes;
-  expect(sessionAttributesUsed.numberOfFailedAttempts).to.equal(1);
+    const response = await unitUnderTest.handler(event, context);
 
-  const responseUsed = response.response;
-  assert(!responseUsed.shouldEndSession);
+    const sessionAttributesUsed = response.sessionAttributes;
+    expect(sessionAttributesUsed.numberOfFailedAttempts).to.equal(1);
 
-  const outputSpeech = responseUsed.outputSpeech;
-  expect(outputSpeech.ssml).to.equal(
-    "<speak>I didn't get that. Please try again.</speak>"
-  );
-  expect(outputSpeech.type).to.equal("SSML");
+    const responseUsed = response.response;
+    assert(!responseUsed.shouldEndSession);
 
-  const reprompt = responseUsed.reprompt;
-  expect(reprompt.outputSpeech.ssml).to.equal(
-    "<speak>I didn't get the word you were asking for. Please try again.</speak>"
-  );
-  expect(reprompt.outputSpeech.type).to.equal("SSML");
+    const outputSpeech = responseUsed.outputSpeech;
+    expect(outputSpeech.ssml).to.equal(
+      "<speak>I didn't get that. Please try again.</speak>"
+    );
+    expect(outputSpeech.type).to.equal("SSML");
 
-  const card = responseUsed.card;
-  expect(card.title).to.equal("Pronunciations");
-  expect(card.type).to.equal("Simple");
-  expect(card.content).to.equal(
-    "Sorry, I'm having trouble understanding. Please try again."
-  );
+    const reprompt = responseUsed.reprompt;
+    expect(reprompt.outputSpeech.ssml).to.equal(
+      "<speak>I didn't get the word you were asking for. Please try again.</speak>"
+    );
+    expect(reprompt.outputSpeech.type).to.equal("SSML");
+
+    const visualMessage = `Sorry, I'm having trouble understanding. Please try again.`;
+    if (hasAPLSupport(event)) {
+      expect(sessionAttributesUsed.isAPLSupported).to.be.true;
+
+      verifyAPLDirectiveStructure(responseUsed.directives);
+      const directive = responseUsed.directives[0];
+      expect(directive.document).to.eql(skillInfoDocument);
+
+      const actualDatasource = directive.datasources;
+      expect(actualDatasource).to.eql(
+        skillInfoDatasource(``, visualMessage)
+      );
+    }
+    else {
+      const card = responseUsed.card;
+      expect(card.title).to.equal("Pronunciations");
+      expect(card.type).to.equal("Simple");
+      expect(card.content).to.equal(visualMessage);
+    }
+  }
 });
 
 it("should increment the failure attempts count and reprompt the user if the spelling slot value is undefined", async () => {
-  const event = require("../test-data/event");
-  // TODO: Once APL support is added for the 'invalid input' scenarios, this test can be
-  // modified to look like the rest. For now, manually removing APL support from the event object.
-  delete event.context.System.device.supportedInterfaces["Alexa.Presentation.APL"];
-  event.request.intent.slots.Spelling.value = undefined;
+  const events = getEventObjects("../test-data/event");
 
-  const response = await unitUnderTest.handler(event, context);
+  for (let j = 0; j < events.length; j++) {
+    let event = events[j];
 
-  const sessionAttributesUsed = response.sessionAttributes;
-  expect(sessionAttributesUsed.numberOfFailedAttempts).to.equal(1);
+    event.request.intent.slots.Spelling.value = undefined;
 
-  const responseUsed = response.response;
-  assert(!responseUsed.shouldEndSession);
+    const response = await unitUnderTest.handler(event, context);
 
-  const outputSpeech = responseUsed.outputSpeech;
-  expect(outputSpeech.ssml).to.equal(
-    "<speak>I didn't get that. Please try again.</speak>"
-  );
-  expect(outputSpeech.type).to.equal("SSML");
+    const sessionAttributesUsed = response.sessionAttributes;
+    expect(sessionAttributesUsed.numberOfFailedAttempts).to.equal(1);
 
-  const reprompt = responseUsed.reprompt;
-  expect(reprompt.outputSpeech.ssml).to.equal(
-    "<speak>I didn't get the word you were asking for. Please try again.</speak>"
-  );
-  expect(reprompt.outputSpeech.type).to.equal("SSML");
+    const responseUsed = response.response;
+    assert(!responseUsed.shouldEndSession);
 
-  const card = responseUsed.card;
-  expect(card.title).to.equal("Pronunciations");
-  expect(card.type).to.equal("Simple");
-  expect(card.content).to.equal(
-    "Sorry, I'm having trouble understanding. Please try again."
-  );
+    const outputSpeech = responseUsed.outputSpeech;
+    expect(outputSpeech.ssml).to.equal(
+      "<speak>I didn't get that. Please try again.</speak>"
+    );
+    expect(outputSpeech.type).to.equal("SSML");
+
+    const reprompt = responseUsed.reprompt;
+    expect(reprompt.outputSpeech.ssml).to.equal(
+      "<speak>I didn't get the word you were asking for. Please try again.</speak>"
+    );
+    expect(reprompt.outputSpeech.type).to.equal("SSML");
+
+    const visualMessage = `Sorry, I'm having trouble understanding. Please try again.`;
+    if (hasAPLSupport(event)) {
+      expect(sessionAttributesUsed.isAPLSupported).to.be.true;
+
+      verifyAPLDirectiveStructure(responseUsed.directives);
+      const directive = responseUsed.directives[0];
+      expect(directive.document).to.eql(skillInfoDocument);
+
+      const actualDatasource = directive.datasources;
+      expect(actualDatasource).to.eql(
+        skillInfoDatasource(``, visualMessage)
+      );
+    }
+    else {
+      const card = responseUsed.card;
+      expect(card.title).to.equal("Pronunciations");
+      expect(card.type).to.equal("Simple");
+      expect(card.content).to.equal(
+        visualMessage
+      );
+    }
+  }
 });
 
 it("should increment the failure attempts count in session attributes each time we receive an invalid or missing inputs and the last one is a missing input. If we are through the maximum number of attempts, we should render the right messages and exit.", async () => {
-  const event = require("../test-data/event");
-  // TODO: Once APL support is added for the 'invalid input' scenarios, this test can be
-  // modified to look like the rest. For now, manually removing APL support from the event object.
-  delete event.context.System.device.supportedInterfaces["Alexa.Presentation.APL"];
   const maxAttempts = 3;
 
-  let currentAttempt = 0;
-  let response;
+  const events = getEventObjects("../test-data/event");
 
-  for (let i = 0; i < maxAttempts; i++) {
-    currentAttempt++;
-    event.request.intent.slots.Spelling.value = undefined;
+  for (let j = 0; j < events.length; j++) {
+    let event = events[j];
 
-    response = await unitUnderTest.handler(event, context);
+    let response;
+    for (let i = 0; i < maxAttempts; i++) {
+      event.request.intent.slots.Spelling.value = undefined;
 
-    event.session.attributes = response.sessionAttributes;
+      response = await unitUnderTest.handler(event, context);
+
+      event.session.attributes = response.sessionAttributes;
+    }
+
+    // TODO: After refactoring, may be we can assert on the output of each invalid input.
+    const sessionAttributesUsed = response.sessionAttributes;
+    expect(sessionAttributesUsed.numberOfFailedAttempts).to.equal(maxAttempts);
+
+    const responseUsed = response.response;
+    assert(responseUsed.shouldEndSession);
+
+    const outputSpeech = responseUsed.outputSpeech;
+    expect(outputSpeech.ssml).to.equal(
+      "<speak>Sorry, I'm having trouble understanding. Please try again later. Good bye.</speak>"
+    );
+    expect(outputSpeech.type).to.equal("SSML");
+
+    expect(responseUsed.reprompt).to.be.undefined;
+
+    const visualMessage = `Sorry, I'm having trouble understanding. Please try again later. Good bye.`;
+    if (hasAPLSupport(event)) {
+      expect(sessionAttributesUsed.isAPLSupported).to.be.true;
+
+      verifyAPLDirectiveStructure(responseUsed.directives);
+      const directive = responseUsed.directives[0];
+      expect(directive.document).to.eql(skillInfoDocument);
+
+      const actualDatasource = directive.datasources;
+      expect(actualDatasource).to.eql(
+        skillInfoDatasource(``, visualMessage)
+      );
+    }
+    else {
+      const card = responseUsed.card;
+      expect(card.title).to.equal(`Pronunciations`);
+      expect(card.type).to.equal("Simple");
+      expect(card.content).to.equal(visualMessage);
+    }
   }
-
-  // TODO: After refactoring, may be we can assert on the output of each invalid input.
-  const sessionAttributesUsed = response.sessionAttributes;
-  expect(sessionAttributesUsed.numberOfFailedAttempts).to.equal(maxAttempts);
-
-  const responseUsed = response.response;
-  assert(responseUsed.shouldEndSession);
-
-  const outputSpeech = responseUsed.outputSpeech;
-  expect(outputSpeech.ssml).to.equal(
-    "<speak>Sorry, I'm having trouble understanding. Please try again later. Good bye.</speak>"
-  );
-  expect(outputSpeech.type).to.equal("SSML");
-
-  expect(responseUsed.reprompt).to.be.undefined;
-
-  const card = responseUsed.card;
-  expect(card.title).to.equal(`Pronunciations`);
-  expect(card.type).to.equal("Simple");
-  expect(card.content).to.equal(
-    `Sorry, I'm having trouble understanding. Please try again.`
-  );
 });
 
 it("handles the AMAZON.HelpIntent properly", async () => {

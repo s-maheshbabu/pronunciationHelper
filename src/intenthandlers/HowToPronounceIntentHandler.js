@@ -6,6 +6,9 @@ const extraneousPhrases = require("constants/PhrasesToStrip");
 const wordPronouncedDocument = require("apl/document/WordPronouncedDocument.json");
 const wordPronouncedDatasource = require("apl/data/WordPronouncedDatasource");
 
+const skillInfoDocument = require("apl/document/SkillInfoDocument.json");
+const skillInfoDatasource = require("apl/data/SkillInfoDatasource");
+
 const APL_DOCUMENT_TYPE = APL_CONSTANTS.APL_DOCUMENT_TYPE;
 const APL_DOCUMENT_VERSION = APL_CONSTANTS.APL_DOCUMENT_VERSION;
 
@@ -174,6 +177,7 @@ By the way, you might have tried to pronounce a word or a phrase but I work best
         `Invalid input. Rendering an error prompt and asking the user to try again.`
       );
 
+      const visualMessage = `Sorry, I'm having trouble understanding. Please try again.`;
       return responseBuilder
         .speak(`I didn't get that. Please try again.`)
         .reprompt(
@@ -181,22 +185,41 @@ By the way, you might have tried to pronounce a word or a phrase but I work best
         )
         .withSimpleCard(
           cardTitle,
-          `Sorry, I'm having trouble understanding. Please try again.`
+          visualMessage
         )
         .withShouldEndSession(false)
+        .addDirective({
+          type: APL_DOCUMENT_TYPE,
+          version: APL_DOCUMENT_VERSION,
+          document: skillInfoDocument,
+          datasources: skillInfoDatasource(
+            ``,
+            visualMessage
+          )
+        })
         .getResponse();
     } else {
       console.log(`Too many invalid inputs. Quitting.`);
 
+      const visualMessage = `Sorry, I'm having trouble understanding. Please try again later. Good bye.`;
       return responseBuilder
         .speak(
           `Sorry, I'm having trouble understanding. Please try again later. Good bye.`
         )
         .withSimpleCard(
           cardTitle,
-          `Sorry, I'm having trouble understanding. Please try again.`
+          visualMessage
         )
         .withShouldEndSession(true)
+        .addDirective({
+          type: APL_DOCUMENT_TYPE,
+          version: APL_DOCUMENT_VERSION,
+          document: skillInfoDocument,
+          datasources: skillInfoDatasource(
+            ``,
+            visualMessage
+          )
+        })
         .getResponse();
     }
   }
@@ -227,7 +250,11 @@ function incrementFailedAttemptsCount(attributes) {
  * and if there are, finds the longest extraneous phrase and remove
  * it.
  * @param {String} input the string from which the extraneous phrase
- * should be removed.
+ * should be removed.,
+          datasources: skillInfoDatasource(
+            visualMessage,
+            ``
+          )
  * @param {Array of Strings} extraneousPhrases the list of strings
  * that should be removed from the input.
  */
