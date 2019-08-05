@@ -1,4 +1,6 @@
 const unitUnderTest = require("../src/index");
+const hasIn = require("immutable").hasIn;
+const cloneDeep = require("lodash.clonedeep");
 
 const expect = require("chai").expect;
 const assert = require("chai").assert;
@@ -27,12 +29,16 @@ before(async () => {
   await SpellChecker.init();
 });
 
-afterEach(function() {
+afterEach(function () {
   decache("../test-data/event");
 });
 
 it("should increment the failure attempts count and reprompt the user if the spelling slot is missing altogether", async () => {
   const event = require("../test-data/event");
+  // TODO: Once APL support is added for the 'invalid input' scenarios, this test can be
+  // modified to look like the rest. For now, manually removing APL support from the event object.
+  delete event.context.System.device.supportedInterfaces["Alexa.Presentation.APL"];
+
   event.request.intent.slots.Spelling = undefined;
 
   const response = await unitUnderTest.handler(event, context);
@@ -65,6 +71,9 @@ it("should increment the failure attempts count and reprompt the user if the spe
 
 it("should increment the failure attempts count and reprompt the user if the spelling slot value is undefined", async () => {
   const event = require("../test-data/event");
+  // TODO: Once APL support is added for the 'invalid input' scenarios, this test can be
+  // modified to look like the rest. For now, manually removing APL support from the event object.
+  delete event.context.System.device.supportedInterfaces["Alexa.Presentation.APL"];
   event.request.intent.slots.Spelling.value = undefined;
 
   const response = await unitUnderTest.handler(event, context);
@@ -97,6 +106,9 @@ it("should increment the failure attempts count and reprompt the user if the spe
 
 it("should increment the failure attempts count in session attributes each time we receive an invalid or missing inputs and the last one is a missing input. If we are through the maximum number of attempts, we should render the right messages and exit.", async () => {
   const event = require("../test-data/event");
+  // TODO: Once APL support is added for the 'invalid input' scenarios, this test can be
+  // modified to look like the rest. For now, manually removing APL support from the event object.
+  delete event.context.System.device.supportedInterfaces["Alexa.Presentation.APL"];
   const maxAttempts = 3;
 
   let currentAttempt = 0;
@@ -140,10 +152,7 @@ it("handles the AMAZON.HelpIntent properly", async () => {
   const response = await unitUnderTest.handler(event, context);
 
   const sessionAttributesUsed = response.sessionAttributes;
-  assert(
-    Object.keys(sessionAttributesUsed).length === 0 &&
-      sessionAttributesUsed.constructor === Object
-  );
+  expect(sessionAttributesUsed.isAPLSupported).to.be.true;
 
   const responseUsed = response.response;
   assert(!responseUsed.shouldEndSession);
@@ -174,7 +183,8 @@ Alexa, open pronunciations and help me pronounce W. A. L. T.
 Alexa, pronounce the word D. O. U. B. T.`
     )
   );
-});
+}
+);
 
 it("should render an error message for unknown intents.", async () => {
   const event = require("../test-data/unknown_intent_event");
@@ -182,10 +192,7 @@ it("should render an error message for unknown intents.", async () => {
   const response = await unitUnderTest.handler(event, context);
 
   const sessionAttributesUsed = response.sessionAttributes;
-  assert(
-    Object.keys(sessionAttributesUsed).length === 0 &&
-      sessionAttributesUsed.constructor === Object
-  );
+  expect(sessionAttributesUsed.isAPLSupported).to.be.true;
 
   const responseUsed = response.response;
   assert(!responseUsed.shouldEndSession);
@@ -209,10 +216,7 @@ it("handles the AMAZON.CancelIntent properly", async () => {
   const response = await unitUnderTest.handler(event, context);
 
   const sessionAttributesUsed = response.sessionAttributes;
-  assert(
-    Object.keys(sessionAttributesUsed).length === 0 &&
-      sessionAttributesUsed.constructor === Object
-  );
+  expect(sessionAttributesUsed.isAPLSupported).to.be.true;
 
   const responseUsed = response.response;
   assert(responseUsed.shouldEndSession);
@@ -226,10 +230,7 @@ it("handles the AMAZON.NoIntent properly", async () => {
   const response = await unitUnderTest.handler(event, context);
 
   const sessionAttributesUsed = response.sessionAttributes;
-  assert(
-    Object.keys(sessionAttributesUsed).length === 0 &&
-      sessionAttributesUsed.constructor === Object
-  );
+  expect(sessionAttributesUsed.isAPLSupported).to.be.true;
 
   const responseUsed = response.response;
   assert(responseUsed.shouldEndSession);
@@ -243,10 +244,7 @@ it("handles the AMAZON.StopIntent properly", async () => {
   const response = await unitUnderTest.handler(event, context);
 
   const sessionAttributesUsed = response.sessionAttributes;
-  assert(
-    Object.keys(sessionAttributesUsed).length === 0 &&
-      sessionAttributesUsed.constructor === Object
-  );
+  expect(sessionAttributesUsed.isAPLSupported).to.be.true;
 
   const responseUsed = response.response;
   assert(responseUsed.shouldEndSession);
@@ -255,121 +253,141 @@ it("handles the AMAZON.StopIntent properly", async () => {
 });
 
 it("should render the welcome message on launch requests", async () => {
-  const event = require("../test-data/launch_request_event");
+  const events = getEventObjects("../test-data/launch_request_event");
 
-  const response = await unitUnderTest.handler(event, context);
+  for (let j = 0; j < events.length; j++) {
+    let event = events[j];
+    const response = await unitUnderTest.handler(event, context);
 
-  const sessionAttributesUsed = response.sessionAttributes;
-  assert(
-    Object.keys(sessionAttributesUsed).length === 0 &&
-      sessionAttributesUsed.constructor === Object
-  );
+    const sessionAttributesUsed = response.sessionAttributes;
 
-  const responseUsed = response.response;
-  assert(!responseUsed.shouldEndSession);
+    const responseUsed = response.response;
+    assert(!responseUsed.shouldEndSession);
 
-  const outputSpeech = responseUsed.outputSpeech;
-  expect(outputSpeech.ssml).to.equal(
-    `<speak>Welcome to Pronunciations. You can say things like, pronounce <say-as interpret-as="spell-out">BITS</say-as> <break time="100ms"/> So, what word do you want me to pronounce?</speak>`
-  );
-  expect(outputSpeech.type).to.equal("SSML");
+    const outputSpeech = responseUsed.outputSpeech;
+    expect(outputSpeech.ssml).to.equal(
+      `<speak>Welcome to Pronunciations. You can say things like, pronounce <say-as interpret-as="spell-out">BITS</say-as> <break time="100ms"/> So, what word do you want me to pronounce?</speak>`
+    );
+    expect(outputSpeech.type).to.equal("SSML");
 
-  const reprompt = responseUsed.reprompt;
-  expect(reprompt.outputSpeech.ssml).to.equal(
-    `<speak>What word do you want the pronunciation for? You can say things like, what is the pronunciation for <say-as interpret-as="spell-out">ROBOT</say-as></speak>`
-  );
-  expect(reprompt.outputSpeech.type).to.equal("SSML");
+    const reprompt = responseUsed.reprompt;
+    expect(reprompt.outputSpeech.ssml).to.equal(
+      `<speak>What word do you want the pronunciation for? You can say things like, what is the pronunciation for <say-as interpret-as="spell-out">ROBOT</say-as></speak>`
+    );
+    expect(reprompt.outputSpeech.type).to.equal("SSML");
 
-  const card = responseUsed.card;
-  expect(card.title).to.equal("Welcome to Pronunciations");
-  expect(card.type).to.equal("Simple");
-  expect(card.content).to.equal(
-    `Examples:
+    if (hasAPLSupport(event)) {
+      expect(sessionAttributesUsed.isAPLSupported).to.be.true;
+
+      verifyAPLDirectiveStructure(responseUsed.directives);
+      const directive = responseUsed.directives[0];
+      expect(directive.document).to.eql(wordPronouncedDocument);
+
+      const actualDatasource = directive.datasources;
+      expect(actualDatasource).to.eql(
+        skillInfoDatasource(
+          `I can help you with the pronunciations of English words and phrases. Just spell the word you want me to pronounce. For example, you can say - `,
+          `Alexa, open pronunciations
+Alexa, ask pronunciations to pronounce G. Y. R. O.
+Alexa, open pronunciations and help me pronounce W. A. L. T.
+Alexa, pronounce the word D. O. U. B. T.`
+        )
+      );
+    }
+    else {
+      assert(
+        Object.keys(sessionAttributesUsed).length === 0 &&
+        sessionAttributesUsed.constructor === Object
+      );
+
+      const card = responseUsed.card;
+      expect(card.title).to.equal("Welcome to Pronunciations");
+      expect(card.type).to.equal("Simple");
+      expect(card.content).to.equal(
+        `Examples:
 Pronounce D. O. G.
 How to pronounce B. I. T. S.
 What is the pronunciation for C. A. T.
 Ask pnonunciations to pronounce A. L. E. X. A.`
-  );
-
-  verifyAPLDirectiveStructure(responseUsed.directives);
-  const directive = responseUsed.directives[0];
-  expect(directive.document).to.eql(wordPronouncedDocument);
-
-  const actualDatasource = directive.datasources;
-  expect(actualDatasource).to.eql(
-    skillInfoDatasource(
-      `I can help you with the pronunciations of English words and phrases. Just spell the word you want me to pronounce. For example, you can say - `,
-      `Alexa, open pronunciations
-Alexa, ask pronunciations to pronounce G. Y. R. O.
-Alexa, open pronunciations and help me pronounce W. A. L. T.
-Alexa, pronounce the word D. O. U. B. T.`
-    )
-  );
+      );
+    }
+  }
 });
 
 it("should spell the input and educate the user if the input is all lower case. All lower case input usually means that the user asked for the pronunciation of a word or a phrase instead of spelling out a word character by character.", async () => {
-  const event = require("../test-data/event");
   const wordsWithLowerCaseCharacters = [
     "dog",
     "how are you",
     "how. are you _doing"
   ];
 
-  for (let i = 0; i < wordsWithLowerCaseCharacters.length; i++) {
-    event.request.intent.slots.Spelling.value = wordsWithLowerCaseCharacters[i];
-    event.session.attributes = undefined;
+  const events = getEventObjects("../test-data/event");
 
-    const response = await unitUnderTest.handler(event, context);
+  for (let j = 0; j < events.length; j++) {
+    let event = events[j];
 
-    const sessionAttributesUsed = response.sessionAttributes;
-    assert(
-      Object.keys(sessionAttributesUsed).length === 0 &&
-        sessionAttributesUsed.constructor === Object
-    );
+    for (let i = 0; i < wordsWithLowerCaseCharacters.length; i++) {
+      event.request.intent.slots.Spelling.value = wordsWithLowerCaseCharacters[i];
+      event.session.attributes = undefined;
 
-    const responseUsed = response.response;
-    assert(responseUsed.shouldEndSession);
+      const response = await unitUnderTest.handler(event, context);
 
-    const outputSpeech = responseUsed.outputSpeech;
-    expect(outputSpeech.ssml).to.equal(
-      `<speak>I would pronounce it as ${
+      const sessionAttributesUsed = response.sessionAttributes;
+
+      const responseUsed = response.response;
+      assert(responseUsed.shouldEndSession);
+
+      const outputSpeech = responseUsed.outputSpeech;
+      expect(outputSpeech.ssml).to.equal(
+        `<speak>I would pronounce it as ${
         wordsWithLowerCaseCharacters[i]
-      }. By the way, I work best when you spell the word you want me to pronounce, instead of saying the entire word or phrase.</speak>`
-    );
-    expect(outputSpeech.type).to.equal("SSML");
+        }. By the way, I work best when you spell the word you want me to pronounce, instead of saying the entire word or phrase.</speak>`
+      );
+      expect(outputSpeech.type).to.equal("SSML");
 
-    expect(responseUsed.reprompt).to.be.undefined;
+      expect(responseUsed.reprompt).to.be.undefined;
 
-    const educativeVisualMessage = `Now that you know how to pronounce '${
-      wordsWithLowerCaseCharacters[i]
-    }', you can ask Alexa for its meaning by saying "Alexa, define ${
-      wordsWithLowerCaseCharacters[i]
-    }".
+      const educativeVisualMessage = `Now that you know how to pronounce '${
+        wordsWithLowerCaseCharacters[i]
+        }', you can ask Alexa for its meaning by saying "Alexa, define ${
+        wordsWithLowerCaseCharacters[i]
+        }".
 
 By the way, you might have tried to pronounce a word or a phrase but I work best when you spell the word you need pronunciation for. Say "Ask Pronunciations for help" to learn more.`;
-    const card = responseUsed.card;
-    expect(card.title).to.equal(
-      `Pronunciation of '${wordsWithLowerCaseCharacters[i]}'`
-    );
-    expect(card.type).to.equal("Simple");
-    expect(card.content).to.equal(educativeVisualMessage);
 
-    verifyAPLDirectiveStructure(responseUsed.directives);
-    const directive = responseUsed.directives[0];
-    expect(directive.document).to.eql(wordPronouncedDocument);
+      if (hasAPLSupport(event)) {
+        expect(sessionAttributesUsed.isAPLSupported).to.be.true;
 
-    const actualDatasource = directive.datasources;
-    expect(actualDatasource).to.eql(
-      wordPronouncedDatasource(
-        wordsWithLowerCaseCharacters[i],
-        educativeVisualMessage
-      )
-    );
+        verifyAPLDirectiveStructure(responseUsed.directives);
+        const directive = responseUsed.directives[0];
+        expect(directive.document).to.eql(wordPronouncedDocument);
+
+        const actualDatasource = directive.datasources;
+        expect(actualDatasource).to.eql(
+          wordPronouncedDatasource(
+            wordsWithLowerCaseCharacters[i],
+            educativeVisualMessage
+          )
+        );
+      }
+      else {
+        assert(
+          Object.keys(sessionAttributesUsed).length === 0 &&
+          sessionAttributesUsed.constructor === Object
+        );
+
+        const card = responseUsed.card;
+        expect(card.title).to.equal(
+          `Pronunciation of '${wordsWithLowerCaseCharacters[i]}'`
+        );
+        expect(card.type).to.equal("Simple");
+        expect(card.content).to.equal(educativeVisualMessage);
+      }
+    }
   }
 });
 
 it("should spell the words in the happy case", async () => {
-  const event = require("../test-data/event");
   const wordsToBePronoucned = [
     ["DOG", "DOG"],
     ["   DOG", "DOG"],
@@ -388,48 +406,57 @@ it("should spell the words in the happy case", async () => {
     ["D. E. M. A. nd", "DEMAND"]
   ];
 
-  for (let i = 0; i < wordsToBePronoucned.length; i++) {
-    event.request.intent.slots.Spelling.value = wordsToBePronoucned[i][0];
-    const wordToBePronounced = wordsToBePronoucned[i][1];
+  const events = getEventObjects("../test-data/event");
 
-    const response = await unitUnderTest.handler(event, context);
+  for (let j = 0; j < events.length; j++) {
+    let event = events[j];
 
-    const sessionAttributesUsed = response.sessionAttributes;
-    assert(
-      Object.keys(sessionAttributesUsed).length === 0 &&
-        sessionAttributesUsed.constructor === Object
-    );
+    for (let i = 0; i < wordsToBePronoucned.length; i++) {
+      event.request.intent.slots.Spelling.value = wordsToBePronoucned[i][0];
+      const wordToBePronounced = wordsToBePronoucned[i][1];
 
-    const responseUsed = response.response;
-    assert(responseUsed.shouldEndSession);
+      const response = await unitUnderTest.handler(event, context);
+      const responseUsed = response.response;
+      assert(responseUsed.shouldEndSession);
 
-    const outputSpeech = responseUsed.outputSpeech;
-    expect(outputSpeech.ssml).to.equal(
-      "<speak>It is pronounced as " + wordToBePronounced + ".</speak>"
-    );
-    expect(outputSpeech.type).to.equal("SSML");
+      const outputSpeech = responseUsed.outputSpeech;
+      expect(outputSpeech.ssml).to.equal(
+        "<speak>It is pronounced as " + wordToBePronounced + ".</speak>"
+      );
+      expect(outputSpeech.type).to.equal("SSML");
 
-    expect(responseUsed.reprompt).to.be.undefined;
+      expect(responseUsed.reprompt).to.be.undefined;
 
-    const educativeVisualMessage = `Now that you know how to pronounce ${wordToBePronounced}, you can ask for its meaning by saying "Alexa, define ${wordToBePronounced}"`;
-    const card = responseUsed.card;
-    expect(card.title).to.equal(`Pronunciation of '${wordToBePronounced}'`);
-    expect(card.type).to.equal("Simple");
-    expect(card.content).to.equal(educativeVisualMessage);
+      const sessionAttributesUsed = response.sessionAttributes;
+      const educativeVisualMessage = `Now that you know how to pronounce ${wordToBePronounced}, you can ask for its meaning by saying "Alexa, define ${wordToBePronounced}"`;
+      if (hasAPLSupport(event)) {
+        expect(sessionAttributesUsed.isAPLSupported).to.be.true;
 
-    verifyAPLDirectiveStructure(responseUsed.directives);
-    const directive = responseUsed.directives[0];
-    expect(directive.document).to.eql(wordPronouncedDocument);
+        verifyAPLDirectiveStructure(responseUsed.directives);
+        const directive = responseUsed.directives[0];
+        expect(directive.document).to.eql(wordPronouncedDocument);
 
-    const actualDatasource = directive.datasources;
-    expect(actualDatasource).to.eql(
-      wordPronouncedDatasource(wordToBePronounced, educativeVisualMessage)
-    );
+        const actualDatasource = directive.datasources;
+        expect(actualDatasource).to.eql(
+          wordPronouncedDatasource(wordToBePronounced, educativeVisualMessage)
+        );
+      }
+      else {
+        assert(
+          Object.keys(sessionAttributesUsed).length === 0 &&
+          sessionAttributesUsed.constructor === Object
+        );
+
+        const card = responseUsed.card;
+        expect(card.title).to.equal(`Pronunciation of '${wordToBePronounced}'`);
+        expect(card.type).to.equal("Simple");
+        expect(card.content).to.equal(educativeVisualMessage);
+      }
+    }
   }
 });
 
 it(`should render a less confident prompt when a misspelling is detected. This could be a user mistake or just Alexa hearing them wrong and so the response should be less confident. The session attributes should also be updated to allow spell correction`, async () => {
-  const event = require("../test-data/event");
   const wordsWithIncorrectSpellings = [
     ["RETREIVE", "RETREIVE"],
     ["CORT", "CORT"],
@@ -438,114 +465,136 @@ it(`should render a less confident prompt when a misspelling is detected. This c
     ["QU. EUEU     ", "QUEUEU"]
   ];
 
-  for (let i = 0; i < wordsWithIncorrectSpellings.length; i++) {
-    event.request.intent.slots.Spelling.value =
-      wordsWithIncorrectSpellings[i][0];
+  const events = getEventObjects("../test-data/event");
 
-    const wordToBePronounced = wordsWithIncorrectSpellings[i][1];
-    const suggestedSpellings = SpellChecker.getSuggestedSpellings(
-      wordToBePronounced
-    );
+  for (let j = 0; j < events.length; j++) {
+    let event = events[j];
 
-    const response = await unitUnderTest.handler(event, context);
+    for (let i = 0; i < wordsWithIncorrectSpellings.length; i++) {
+      event.request.intent.slots.Spelling.value =
+        wordsWithIncorrectSpellings[i][0];
 
-    const sessionAttributes = response.sessionAttributes;
-    assert(sessionAttributes);
-    expect(sessionAttributes.state).to.deep.equal(
-      STATES.SUGGEST_CORRECT_SPELLINGS
-    );
-    expect(sessionAttributes.suggestedSpellings).to.deep.equal(
-      suggestedSpellings
-    );
+      const wordToBePronounced = wordsWithIncorrectSpellings[i][1];
+      const suggestedSpellings = SpellChecker.getSuggestedSpellings(
+        wordToBePronounced
+      );
 
-    const responseUsed = response.response;
-    assert(!responseUsed.shouldEndSession);
+      const response = await unitUnderTest.handler(event, context);
 
-    const outputSpeech = responseUsed.outputSpeech;
-    expect(outputSpeech.ssml).to.equal(
-      "<speak>I would pronounce it as " +
+      const sessionAttributes = response.sessionAttributes;
+      assert(sessionAttributes);
+      expect(sessionAttributes.state).to.deep.equal(
+        STATES.SUGGEST_CORRECT_SPELLINGS
+      );
+      expect(sessionAttributes.suggestedSpellings).to.deep.equal(
+        suggestedSpellings
+      );
+
+      const responseUsed = response.response;
+      assert(!responseUsed.shouldEndSession);
+
+      const outputSpeech = responseUsed.outputSpeech;
+      expect(outputSpeech.ssml).to.equal(
+        "<speak>I would pronounce it as " +
         wordToBePronounced +
         ". By the way, I have a feeling that I misheard you. I have some suggestions on what you might have been trying to pronounce. Do you want to hear them?</speak>"
-    );
-    expect(outputSpeech.type).to.equal("SSML");
+      );
+      expect(outputSpeech.type).to.equal("SSML");
 
-    const repromptSpeech = responseUsed.reprompt.outputSpeech;
-    expect(repromptSpeech.ssml).to.equal(
-      "<speak>While I pronounced what I heard, I have a feeling that I either misheard you or you gave an incorrect spelling. I have some suggestions on what you might have been trying to pronounce. Do you want to hear them?</speak>"
-    );
-    expect(repromptSpeech.type).to.equal("SSML");
+      const repromptSpeech = responseUsed.reprompt.outputSpeech;
+      expect(repromptSpeech.ssml).to.equal(
+        "<speak>While I pronounced what I heard, I have a feeling that I either misheard you or you gave an incorrect spelling. I have some suggestions on what you might have been trying to pronounce. Do you want to hear them?</speak>"
+      );
+      expect(repromptSpeech.type).to.equal("SSML");
 
-    const card = responseUsed.card;
-    expect(card.title).to.equal(`Pronunciation of '${wordToBePronounced}'`);
-    expect(card.type).to.equal("Simple");
-    expect(card.content).to.equal(
-      `Now that you know how to pronounce ${wordToBePronounced}, you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronounced}"`
-    );
+      if (hasAPLSupport(event)) {
+        expect(sessionAttributes.isAPLSupported).to.be.true;
 
-    verifyAPLDirectiveStructure(responseUsed.directives);
-    const directive = responseUsed.directives[0];
-    expect(directive.document).to.eql(wordPronouncedDocument);
+        verifyAPLDirectiveStructure(responseUsed.directives);
+        const directive = responseUsed.directives[0];
+        expect(directive.document).to.eql(wordPronouncedDocument);
 
-    const actualDatasource = directive.datasources;
-    expect(actualDatasource).to.eql(
-      wordPronouncedDatasource(
-        wordToBePronounced,
-        `I have a feeling I misheard you though. Here are some words that are similar to what I heard. Do you want me to pronounce them?`,
-        topSuggestedSpellings(
-          suggestedSpellings,
-          MAX_SPELL_SUGGESTIONS_TO_DISPLAY
-        )
-      )
-    );
+        const actualDatasource = directive.datasources;
+        expect(actualDatasource).to.eql(
+          wordPronouncedDatasource(
+            wordToBePronounced,
+            `I have a feeling I misheard you though. Here are some words that are similar to what I heard. Do you want me to pronounce them?`,
+            topSuggestedSpellings(
+              suggestedSpellings,
+              MAX_SPELL_SUGGESTIONS_TO_DISPLAY
+            )
+          )
+        );
+      }
+      else {
+        const card = responseUsed.card;
+        expect(card.title).to.equal(`Pronunciation of '${wordToBePronounced}'`);
+        expect(card.type).to.equal("Simple");
+        expect(card.content).to.equal(
+          `Now that you know how to pronounce ${wordToBePronounced}, you can ask Alexa for its meaning by saying "Alexa, define ${wordToBePronounced}"`
+        );
+      }
+    }
   }
 });
 
 it(`should render a less confident prompt but not offer to make suggestions when there are no suggestions that could be derived from the misspelled word.`, async () => {
-  const event = require("../test-data/event");
   const misspelledWordWithoutSuggestions = "ASLIEJDINVJDUDN";
 
-  event.request.intent.slots.Spelling.value = misspelledWordWithoutSuggestions;
-  const response = await unitUnderTest.handler(event, context);
+  const events = getEventObjects("../test-data/event");
 
-  const sessionAttributesUsed = response.sessionAttributes;
-  assert(
-    Object.keys(sessionAttributesUsed).length === 0 &&
-      sessionAttributesUsed.constructor === Object
-  );
+  for (let j = 0; j < events.length; j++) {
+    let event = events[j];
 
-  const responseUsed = response.response;
-  assert(responseUsed.shouldEndSession);
+    event.request.intent.slots.Spelling.value = misspelledWordWithoutSuggestions;
+    const response = await unitUnderTest.handler(event, context);
 
-  const outputSpeech = responseUsed.outputSpeech;
-  expect(outputSpeech.ssml).to.equal(
-    "<speak>I would pronounce it as " +
+    const sessionAttributesUsed = response.sessionAttributes;
+
+    const responseUsed = response.response;
+    assert(responseUsed.shouldEndSession);
+
+    const outputSpeech = responseUsed.outputSpeech;
+    expect(outputSpeech.ssml).to.equal(
+      "<speak>I would pronounce it as " +
       misspelledWordWithoutSuggestions +
       ".</speak>"
-  );
-  expect(outputSpeech.type).to.equal("SSML");
+    );
+    expect(outputSpeech.type).to.equal("SSML");
 
-  expect(responseUsed.reprompt).to.be.undefined;
+    expect(responseUsed.reprompt).to.be.undefined;
 
-  const card = responseUsed.card;
-  expect(card.title).to.equal(
-    `Pronunciation of '${misspelledWordWithoutSuggestions}'`
-  );
-  expect(card.type).to.equal("Simple");
-  expect(card.content).to.equal(
-    `Now that you know how to pronounce ${misspelledWordWithoutSuggestions}, you can ask Alexa for its meaning by saying "Alexa, define ${misspelledWordWithoutSuggestions}"`
-  );
+    if (hasAPLSupport(event)) {
+      expect(sessionAttributesUsed.isAPLSupported).to.be.true;
 
-  verifyAPLDirectiveStructure(responseUsed.directives);
-  const directive = responseUsed.directives[0];
-  expect(directive.document).to.eql(wordPronouncedDocument);
+      verifyAPLDirectiveStructure(responseUsed.directives);
+      const directive = responseUsed.directives[0];
+      expect(directive.document).to.eql(wordPronouncedDocument);
 
-  const actualDatasource = directive.datasources;
-  expect(actualDatasource).to.eql(
-    wordPronouncedDatasource(
-      misspelledWordWithoutSuggestions,
-      `To be honest, I don't recognize this word but I pronounced it anyways because you asked for it.`
-    )
-  );
+      const actualDatasource = directive.datasources;
+      expect(actualDatasource).to.eql(
+        wordPronouncedDatasource(
+          misspelledWordWithoutSuggestions,
+          `To be honest, I don't recognize this word but I pronounced it anyways because you asked for it.`
+        )
+      );
+    }
+    else {
+      assert(
+        Object.keys(sessionAttributesUsed).length === 0 &&
+        sessionAttributesUsed.constructor === Object
+      );
+
+      const card = responseUsed.card;
+      expect(card.title).to.equal(
+        `Pronunciation of '${misspelledWordWithoutSuggestions}'`
+      );
+      expect(card.type).to.equal("Simple");
+      expect(card.content).to.equal(
+        `Now that you know how to pronounce ${misspelledWordWithoutSuggestions}, you can ask Alexa for its meaning by saying "Alexa, define ${misspelledWordWithoutSuggestions}"`
+      );
+    }
+  }
 });
 
 it(`should cycle through all available spell suggestions as the user keeps asking for them. When all suggestions are rendered, the session should be ended with an appropriate message.`, async () => {
@@ -591,10 +640,10 @@ it(`should cycle through all available spell suggestions as the user keeps askin
       outputSpeech = responseUsed.outputSpeech;
       expect(outputSpeech.ssml).to.equal(
         '<speak>If you meant <say-as interpret-as="spell-out">' +
-          suggestion +
-          "</say-as>, it is pronounced as " +
-          suggestion +
-          ". Would you like to hear another suggestion?</speak>"
+        suggestion +
+        "</say-as>, it is pronounced as " +
+        suggestion +
+        ". Would you like to hear another suggestion?</speak>"
       );
       expect(outputSpeech.type).to.equal("SSML");
 
@@ -625,10 +674,10 @@ it(`should cycle through all available spell suggestions as the user keeps askin
       outputSpeech = responseUsed.outputSpeech;
       expect(outputSpeech.ssml).to.equal(
         '<speak>If you meant <say-as interpret-as="spell-out">' +
-          suggestion +
-          "</say-as>, it is pronounced as " +
-          suggestion +
-          ".</speak>"
+        suggestion +
+        "</say-as>, it is pronounced as " +
+        suggestion +
+        ".</speak>"
       );
       expect(outputSpeech.type).to.equal("SSML");
 
@@ -696,50 +745,60 @@ it(`should render an error message if we received a YesIntent but the session at
 });
 
 it("should strip away extraneous phrases from the input and just pronounce the remaining word.", async () => {
-  const event = require("../test-data/event");
-
   const wordToBePronounced = "DOG";
   const inputs = [];
   for (let i = 0; i < extraneousPhrases.length; i++) {
     inputs.push(extraneousPhrases[i] + " " + wordToBePronounced);
   }
 
-  for (let i = 0; i < inputs.length; i++) {
-    event.request.intent.slots.Spelling.value = inputs[i];
+  const events = getEventObjects("../test-data/event");
 
-    const response = await unitUnderTest.handler(event, context);
+  for (let j = 0; j < events.length; j++) {
+    let event = events[j];
 
-    const sessionAttributesUsed = response.sessionAttributes;
-    assert(
-      Object.keys(sessionAttributesUsed).length === 0 &&
-        sessionAttributesUsed.constructor === Object
-    );
+    for (let i = 0; i < inputs.length; i++) {
+      event.request.intent.slots.Spelling.value = inputs[i];
 
-    const responseUsed = response.response;
-    assert(responseUsed.shouldEndSession);
+      const response = await unitUnderTest.handler(event, context);
 
-    const outputSpeech = responseUsed.outputSpeech;
-    expect(outputSpeech.ssml).to.equal(
-      "<speak>It is pronounced as " + wordToBePronounced + ".</speak>"
-    );
-    expect(outputSpeech.type).to.equal("SSML");
+      const sessionAttributesUsed = response.sessionAttributes;
 
-    expect(responseUsed.reprompt).to.be.undefined;
+      const responseUsed = response.response;
+      assert(responseUsed.shouldEndSession);
 
-    const educativeVisualMessage = `Now that you know how to pronounce ${wordToBePronounced}, you can ask for its meaning by saying "Alexa, define ${wordToBePronounced}"`;
-    const card = responseUsed.card;
-    expect(card.title).to.equal(`Pronunciation of '${wordToBePronounced}'`);
-    expect(card.type).to.equal("Simple");
-    expect(card.content).to.equal(educativeVisualMessage);
+      const outputSpeech = responseUsed.outputSpeech;
+      expect(outputSpeech.ssml).to.equal(
+        "<speak>It is pronounced as " + wordToBePronounced + ".</speak>"
+      );
+      expect(outputSpeech.type).to.equal("SSML");
 
-    verifyAPLDirectiveStructure(responseUsed.directives);
-    const directive = responseUsed.directives[0];
-    expect(directive.document).to.eql(wordPronouncedDocument);
+      expect(responseUsed.reprompt).to.be.undefined;
 
-    const actualDatasource = directive.datasources;
-    expect(actualDatasource).to.eql(
-      wordPronouncedDatasource(wordToBePronounced, educativeVisualMessage)
-    );
+      const educativeVisualMessage = `Now that you know how to pronounce ${wordToBePronounced}, you can ask for its meaning by saying "Alexa, define ${wordToBePronounced}"`;
+      if (hasAPLSupport(event)) {
+        expect(sessionAttributesUsed.isAPLSupported).to.be.true;
+
+        verifyAPLDirectiveStructure(responseUsed.directives);
+        const directive = responseUsed.directives[0];
+        expect(directive.document).to.eql(wordPronouncedDocument);
+
+        const actualDatasource = directive.datasources;
+        expect(actualDatasource).to.eql(
+          wordPronouncedDatasource(wordToBePronounced, educativeVisualMessage)
+        );
+      }
+      else {
+        assert(
+          Object.keys(sessionAttributesUsed).length === 0 &&
+          sessionAttributesUsed.constructor === Object
+        );
+
+        const card = responseUsed.card;
+        expect(card.title).to.equal(`Pronunciation of '${wordToBePronounced}'`);
+        expect(card.type).to.equal("Simple");
+        expect(card.content).to.equal(educativeVisualMessage);
+      }
+    }
   }
 });
 
@@ -781,4 +840,39 @@ function topSuggestedSpellings(suggestedSpellings, numberOfSuggestions) {
   }
 
   return result.substring(0, result.length - 2);
+}
+
+
+
+/*
+Alexa supports Alexa Presentation Language (APL) on only a few devices and
+so there is a fork in the code to issue APL directives for devices that support
+APL and plain old cards for other devices. This test method generates an array
+of two events simulating devices with and without APL support.
+*/
+function getEventObjects(path) {
+  // Events by default are configured to have APL support.
+  const event = require(path);
+
+  // Build an event object without APL support.
+  const eventWithoutAPLSupport = cloneDeep(event);
+  delete eventWithoutAPLSupport.context.System.device.supportedInterfaces["Alexa.Presentation.APL"];
+
+  return [event, eventWithoutAPLSupport];
+}
+
+/*
+Helper fucntion to tell if APL is supported.
+*/
+function hasAPLSupport(event) {
+  if (
+    hasIn(event, [
+      "context",
+      "System",
+      "device",
+      "supportedInterfaces",
+      "Alexa.Presentation.APL"
+    ])
+  ) return true;
+  else return false;
 }

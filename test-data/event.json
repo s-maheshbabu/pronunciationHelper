@@ -32,6 +32,11 @@
         "deviceId":
           "amzn1.ask.device.AFMCILEOZYC7JAYUBXYGWD3EZBXX6IUYVGKLFM4WWNWFGIZAWK5GGKFQ3D3YO7YHX4YHOGROQ3B4N2EAZVIL2NKUVEMDSJZUNQFA5MGRHQVL563W2HREQUD3SGYFTTOJKUDYEUSCA5P25Z5P2HGLBSEWQHE4TUHGTRDA4WTXXZIJQAJH3VEOK",
         "supportedInterfaces": {
+          "Alexa.Presentation.APL": {
+            "runtime": {
+              "maxVersion": "1.0"
+            }
+          },
           "AudioPlayer": {},
           "Display": {
             "templateVersion": "1.0",

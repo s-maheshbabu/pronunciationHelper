@@ -16,8 +16,7 @@ const HowToPronounceIntentHandler = {
   canHandle(handlerInput) {
     return (
       handlerInput.requestEnvelope.request.type === "IntentRequest" &&
-      handlerInput.requestEnvelope.request.intent.name ===
-        "HowToPronounceIntent"
+      handlerInput.requestEnvelope.request.intent.name === "HowToPronounceIntent"
     );
   },
   handle(handlerInput) {
@@ -167,6 +166,7 @@ By the way, you might have tried to pronounce a word or a phrase but I work best
       }
     }
   } else {
+    // TODO: APL support should be added in this section.
     incrementFailedAttemptsCount(attributesManager.getSessionAttributes());
 
     if (isAttemptsRemaining(attributesManager.getSessionAttributes())) {

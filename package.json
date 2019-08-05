@@ -22,7 +22,7 @@
   "homepage": "https://github.com/s-maheshbabu/pronunciationHelper#readme",
   "dependencies": {
     "app-module-path": "^2.2.0",
-    "ask-sdk": "^2.0.0",
+    "ask-sdk": "^2.7.0",
     "dictionary-en-us": "^2.0.0",
     "immutable": "^4.0.0-rc.9",
     "nspell": "^1.0.5"
@@ -32,8 +32,9 @@
     "decache": "^4.4.0",
     "grunt": "0.4.*",
     "grunt-aws-lambda": "^0.13.0",
+    "lodash.clonedeep": "^4.5.0",
     "mocha": "2.3.*",
-    "npm-watch": "^0.3.0",
+    "npm-watch": "^0.6.0",
     "sinon": "1.*.*"
   }
 }
