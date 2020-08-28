@@ -226,8 +226,7 @@ Alexa, open pronunciations and help me pronounce W. A. L. T.
 Alexa, pronounce the word D. O. U. B. T.`
     )
   );
-}
-);
+});
 
 it("should render an error message for unknown intents.", async () => {
   const event = require("../test-data/unknown_intent_event");
@@ -271,14 +270,15 @@ it("handles the AMAZON.NoIntent properly", async () => {
   const event = require("../test-data/no_intent_event");
 
   const response = await unitUnderTest.handler(event, context);
-
-  const sessionAttributesUsed = response.sessionAttributes;
-  expect(sessionAttributesUsed.isAPLSupported).to.be.true;
-
   const responseUsed = response.response;
+
   assert(responseUsed.shouldEndSession);
-  expect(responseUsed.outputSpeech).to.be.undefined;
-  expect(responseUsed.reprompt).to.be.undefined;
+
+  outputSpeech = responseUsed.outputSpeech;
+  expect(outputSpeech.ssml).to.equal(
+    '<speak>Okay.</speak>'
+  );
+  expect(outputSpeech.type).to.equal("SSML");
 });
 
 it("handles the AMAZON.StopIntent properly", async () => {
@@ -734,6 +734,49 @@ it(`should cycle through all available spell suggestions as the user keeps askin
       );
     }
   }
+});
+
+it(`should cycle through available spell suggestions as the user keeps asking for them but should abort when the user indicates they don't want anymore suggestions.`, async () => {
+  const event = require("../test-data/event");
+  const wordToBePronounced = "SDOT";
+
+  const spellSuggestions = SpellChecker.getSuggestedSpellings(
+    wordToBePronounced
+  );
+
+  event.request.intent.slots.Spelling.value = wordToBePronounced;
+  let response = await unitUnderTest.handler(event, context);
+
+  let sessionAttributes = response.sessionAttributes;
+
+  // Simulate user asking for spell suggestions except the last one.
+  const NUMBER_OF_SUGGESTIONS_REQUESTED = spellSuggestions.length - 1;
+  const yesEvent = require("../test-data/yes_intent_event");
+  yesEvent.session.attributes = sessionAttributes;
+
+  for (let index = 0; index < NUMBER_OF_SUGGESTIONS_REQUESTED; index++) {
+    response = await unitUnderTest.handler(yesEvent, context);
+    sessionAttributes = response.sessionAttributes;
+
+    // Maintain sessionAttributes from the previous interaction.
+    // Not doing any assertions on the response itself because that is already tested in other tests.
+    yesEvent.session.attributes = sessionAttributes;
+  }
+
+  // Simulate user saying they don't want any more suggestions.
+  const noEvent = require("../test-data/no_intent_event");
+  noEvent.session.attributes = sessionAttributes;
+
+  response = await unitUnderTest.handler(noEvent, context);
+  const responseUsed = response.response;
+
+  assert(responseUsed.shouldEndSession);
+
+  outputSpeech = responseUsed.outputSpeech;
+  expect(outputSpeech.ssml).to.equal(
+    '<speak>Okay.</speak>'
+  );
+  expect(outputSpeech.type).to.equal("SSML");
 });
 
 it(`should render an error message if we received a YesIntent but the session attributes are in an unexpected state.`, async () => {

@@ -5,8 +5,7 @@ module.exports = CancelAndStopAndNoIntentHandler = {
       (handlerInput.requestEnvelope.request.intent.name ===
         "AMAZON.CancelIntent" ||
         handlerInput.requestEnvelope.request.intent.name ===
-          "AMAZON.StopIntent" ||
-        handlerInput.requestEnvelope.request.intent.name === "AMAZON.NoIntent")
+        "AMAZON.StopIntent")
     );
   },
   handle(handlerInput) {

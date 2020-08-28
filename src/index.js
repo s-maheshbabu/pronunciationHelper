@@ -3,8 +3,9 @@ require("app-module-path").addPath(__dirname);
 const Alexa = require("ask-sdk");
 
 const HowToPronounceIntentHandler = require("intenthandlers/HowToPronounceIntentHandler");
-const CancelAndStopAndNoIntentHandler = require("intenthandlers/CancelAndStopAndNoIntentHandler");
+const CancelAndStopIntentHandler = require("intenthandlers/CancelAndStopIntentHandler");
 const YesIntentHandler = require("intenthandlers/YesIntentHandler");
+const NoIntentHandler = require("intenthandlers/NoIntentHandler");
 const HelpIntentHandler = require("intenthandlers/HelpIntentHandler");
 
 const LaunchRequestHandler = require("requesthandlers/LaunchRequestHandler");
@@ -17,15 +18,25 @@ const ResponseSanitizationInterceptor = require("interceptors/ResponseSanitizati
 
 const ErrorHandler = require("errors/ErrorHandler");
 
+// ***************************************************************************************************
+// These simple interceptors just log the incoming and outgoing request bodies to assist in debugging.
+
+const LogRequestInterceptor = {
+  process(handlerInput) {
+    console.log(`REQUEST ENVELOPE = ${JSON.stringify(handlerInput.requestEnvelope)}`);
+  },
+};
+
 // --------------- Skill Initialization -----------------------
 let skill;
 
-exports.handler = async function(event, context) {
+exports.handler = async function (event, context) {
   if (!skill) {
     skill = Alexa.SkillBuilders.custom()
       .addRequestHandlers(
-        CancelAndStopAndNoIntentHandler,
+        CancelAndStopIntentHandler,
         YesIntentHandler,
+        NoIntentHandler,
         LaunchRequestHandler,
         HowToPronounceIntentHandler,
         HelpIntentHandler,
@@ -33,7 +44,8 @@ exports.handler = async function(event, context) {
       )
       .addRequestInterceptors(
         SpellCheckerInitializationInterceptor,
-        APLSupportVerificationInterceptor
+        APLSupportVerificationInterceptor,
+        LogRequestInterceptor,
       )
       .addResponseInterceptors(ResponseSanitizationInterceptor)
       .addErrorHandlers(ErrorHandler)
