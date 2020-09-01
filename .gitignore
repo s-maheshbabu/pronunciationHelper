@@ -30,6 +30,9 @@ build/Release
 node_modules
 jspm_packages
 
+# ASK directories
+.ask
+
 # Distribution directories
 dist
 
