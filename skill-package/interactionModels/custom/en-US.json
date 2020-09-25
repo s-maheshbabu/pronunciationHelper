@@ -25080,23 +25080,23 @@
           "sampleUtterances": [
             {
               "format": "RAW_TEXT",
-              "value": "give me the pronunciation for the word r. i. d. i. c. u. l. o. u. s."
+              "value": "give me the pronunciation for the word {Spelling}"
             },
             {
               "format": "RAW_TEXT",
-              "value": "help me say the word p. h. i. l. a. n. t. h. r. o. p. y."
+              "value": "help me say the word {Spelling}"
             },
             {
               "format": "RAW_TEXT",
-              "value": "how do I pronounce p. i. r. a. t. e."
+              "value": "how do I pronounce {Spelling}"
             },
             {
               "format": "RAW_TEXT",
-              "value": "pronounce p. a. r. r. o. t."
+              "value": "pronounce {Spelling}"
             },
             {
               "format": "RAW_TEXT",
-              "value": "pronounce c. h. a. m. p. a. g. n. e. in american accent"
+              "value": "pronounce {Spelling} in american accent"
             }
           ]
         }
