@@ -1,6 +1,6 @@
 {
   "type": "APL",
-  "version": "1.0",
+  "version": "1.1",
   "theme": "dark",
   "import": [
     {
@@ -91,13 +91,22 @@
       }
     },
     "textStylePrimary": {
-      "extend": ["textStyleBase1", "mixinPrimary"]
+      "extend": [
+        "textStyleBase1",
+        "mixinPrimary"
+      ]
     },
     "textStyleSecondary": {
-      "extend": ["textStyleBase0", "mixinSecondary"]
+      "extend": [
+        "textStyleBase0",
+        "mixinSecondary"
+      ]
     },
     "textStyleBody": {
-      "extend": ["textStyleBase1", "mixinBody"]
+      "extend": [
+        "textStyleBase1",
+        "mixinBody"
+      ]
     },
     "textStyleSecondaryHint": {
       "values": {
@@ -110,7 +119,9 @@
   },
   "layouts": {},
   "mainTemplate": {
-    "parameters": ["payload"],
+    "parameters": [
+      "payload"
+    ],
     "items": [
       {
         "when": "${viewport.shape == 'round'}",

@@ -2,6 +2,7 @@ const STATES = require("constants/States").states;
 const APL_CONSTANTS = require("constants/APL");
 const SpellChecker = require("spellcheck/SpellChecker");
 
+const utilities = require("utilities");
 const extraneousPhrases = require("constants/PhrasesToStrip");
 const wordPronouncedDocument = require("apl/document/WordPronouncedDocument.json");
 const wordPronouncedDatasource = require("apl/data/WordPronouncedDatasource");
@@ -35,6 +36,7 @@ module.exports = HowToPronounceIntentHandler;
 function pronounceTheWord(handlerInput) {
   const { requestEnvelope, attributesManager, responseBuilder } = handlerInput;
   const intent = requestEnvelope.request.intent;
+  const isAplDevice = utilities.isAplDevice(handlerInput);
 
   var cardTitle = `Pronunciations`;
   var wordToBePronoucnedSlot = intent.slots.Spelling;
@@ -149,16 +151,30 @@ By the way, you might have tried to pronounce a word or a phrase but I work best
       } else {
         const educativeVisualMessage = `Now that you know how to pronounce ${wordToBePronounced}, you can ask for its meaning by saying "Alexa, define ${wordToBePronounced}"`;
 
+        if (isAplDevice) {
+          const attributes = attributesManager.getSessionAttributes() || {};
+          attributes.state = STATES.OFFER_DICTIONARY_PUNCHOUT;
+          attributes.word = wordToBePronounced;
+          attributesManager.setSessionAttributes(attributes);
+
+          responseBuilder
+            .speak(`It is pronounced as ${wordToBePronounced}. Shall I open the dictionary page for ${wordToBePronounced}?`)
+            .reprompt(`Shall I open the dictionary web page for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`)
+        }
+        else {
+          responseBuilder
+            .speak(`It is pronounced as ${wordToBePronounced}.`)
+        }
         return responseBuilder
-          .speak(`It is pronounced as ${wordToBePronounced}.`)
+          .withShouldEndSession(isAplDevice ? false : true)
           .withSimpleCard(
             `Pronunciation of '${wordToBePronounced}'`,
             educativeVisualMessage
           )
-          .withShouldEndSession(true)
           .addDirective({
             type: APL_DOCUMENT_TYPE,
             version: APL_DOCUMENT_VERSION,
+            token: APL_CONSTANTS.WORD_PRONOUNCED_VIEW_TOKEN,
             document: wordPronouncedDocument,
             datasources: wordPronouncedDatasource(
               wordToBePronounced,

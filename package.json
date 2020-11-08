@@ -28,8 +28,11 @@
     "nspell": "^2.1.2"
   },
   "devDependencies": {
+    "ask-sdk-test": "^2.5.0",
     "chai": "^4.2.0",
     "decache": "^4.5.1",
+    "deep-equal": "^2.0.4",
+    "import-fresh": "^3.2.1",
     "grunt": "^1.0.4",
     "grunt-aws-lambda": "^0.13.0",
     "lodash.clonedeep": "^4.5.0",

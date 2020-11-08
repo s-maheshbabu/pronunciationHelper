@@ -27,6 +27,11 @@ module.exports = YesIntentHandler = {
       sessionAttributes.suggestedSpellings.length
     )
       return renderSpellSuggestions(handlerInput);
+    else if (sessionAttributes.state === STATES.OFFER_DICTIONARY_PUNCHOUT) {
+      const { word } = sessionAttributes;
+      // TODO: If word is missing, throw unexpected error. Write a test for that.
+      return punchOutToDictionary(handlerInput, word);
+    }
 
     return responseBuilder
       .speak("Sorry, something went wrong. Please try again.")
@@ -34,6 +39,28 @@ module.exports = YesIntentHandler = {
       .getResponse();
   }
 };
+
+function punchOutToDictionary(handlerInput, word) {
+  const { responseBuilder } = handlerInput;
+
+  return responseBuilder
+    .speak(`Okay.`)
+    .withShouldEndSession(true)
+    .addDirective(buildOpenUrlDirective(word))
+    .getResponse();
+}
+
+function buildOpenUrlDirective(word) {
+  return {
+    type: APL_CONSTANTS.APL_COMMANDS_TYPE,
+    token: APL_CONSTANTS.WORD_PRONOUNCED_VIEW_TOKEN,
+    commands: [{
+      type: "OpenURL",
+      source: `https://www.merriam-webster.com/dictionary/${word}`,
+      onFail: {}
+    }],
+  };
+}
 
 /*
 Extracts the spelling suggestions from the session attributes and renders the

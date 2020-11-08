@@ -15,6 +15,8 @@ module.exports = NoIntentHandler = {
       !(sessionAttributes.state === STATES.SUGGEST_CORRECT_SPELLINGS &&
         Array.isArray(sessionAttributes.suggestedSpellings) &&
         sessionAttributes.suggestedSpellings.length)
+      &&
+      sessionAttributes.state !== STATES.OFFER_DICTIONARY_PUNCHOUT
     )
       console.log(`User said 'No' at an unexpected state. This log is to track how often it happens. This could help us improve the voice interaction model.`);
 

@@ -1,6 +1,20 @@
 const unitUnderTest = require("../src/index");
 const hasIn = require("immutable").hasIn;
 const cloneDeep = require("lodash.clonedeep");
+const deepEqual = require('deep-equal');
+const importFresh = require('import-fresh');
+
+const AlexaTest = require('ask-sdk-test').AlexaTest;
+const IntentRequestBuilder = require('ask-sdk-test').IntentRequestBuilder;
+
+const skillSettings = {
+  appId: 'amzn1.ask.skill.00000000-0000-0000-0000-000000000000',
+  userId: 'amzn1.ask.account.VOID',
+  deviceId: 'amzn1.ask.device.VOID',
+  locale: 'en-US',
+  debug: true,
+};
+const alexaTest = new AlexaTest(unitUnderTest.handler, skillSettings);
 
 const expect = require("chai").expect;
 const assert = require("chai").assert;
@@ -10,6 +24,9 @@ const extraneousPhrases = require("constants/PhrasesToStrip");
 const STATES = require("constants/States").states;
 const APL_CONSTANTS = require("constants/APL");
 const SpellChecker = require("spellcheck/SpellChecker");
+
+const SPELLING_SLOT = "Spelling";
+const SPELLING_SLOT_TYPE = "ALL_WORDS";
 
 const APL_DOCUMENT_TYPE = APL_CONSTANTS.APL_DOCUMENT_TYPE;
 const APL_DOCUMENT_VERSION = APL_CONSTANTS.APL_DOCUMENT_VERSION;
@@ -31,6 +48,86 @@ before(async () => {
 
 afterEach(function () {
   decache("../test-data/event");
+});
+
+describe("Open a dictionary app or website after pronouncing the word in the happy case.", () => {
+  describe('should launch dictionary app (or fallback to website) after pronouncing the word in the happy case.', () => {
+    const wordToBePronounced = 'DOG';
+    alexaTest.test([
+      {
+        request: new buildHowToPronounceIntent(wordToBePronounced, true),
+        says: `It is pronounced as ${wordToBePronounced}. Shall I open the dictionary page for ${wordToBePronounced}?`,
+        reprompts: `Shall I open the dictionary web page for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`,
+        shouldEndSession: false,
+        hasAttributes: {
+          state: STATES.OFFER_DICTIONARY_PUNCHOUT,
+          word: wordToBePronounced,
+        },
+        renderDocument: {
+          document: (doc) => {
+            return deepEqual(doc, wordPronouncedDocument);
+          },
+          hasDataSources: {
+            bodyTemplate2Data: (ds) => {
+              const educativeVisualMessage = `Now that you know how to pronounce ${wordToBePronounced}, you can ask for its meaning by saying "Alexa, define ${wordToBePronounced}"`;
+              return deepEqual(ds, wordPronouncedDatasource(wordToBePronounced, educativeVisualMessage).bodyTemplate2Data);
+            },
+          },
+        },
+      },
+      {
+        request: new buildYesIntent(true),
+        says: `Okay.`,
+        repromptsNothing: true,
+        shouldEndSession: true,
+        callback: (response) => {
+          const openUrlDirective = response.response.directives[0];
+          expect(openUrlDirective).to.eql({
+            type: APL_CONSTANTS.APL_COMMANDS_TYPE,
+            token: APL_CONSTANTS.WORD_PRONOUNCED_VIEW_TOKEN,
+            commands: [{
+              type: "OpenURL",
+              source: `https://www.merriam-webster.com/dictionary/${wordToBePronounced}`,
+              onFail: {}
+            }],
+          });
+        },
+      },
+    ]);
+  });
+
+  describe('should handle gracefully if user declines the offer to have dictionary app (or fallback to website) launched.', () => {
+    const wordToBePronounced = 'DOG';
+    alexaTest.test([
+      {
+        request: new buildHowToPronounceIntent(wordToBePronounced, true),
+        says: `It is pronounced as ${wordToBePronounced}. Shall I open the dictionary page for ${wordToBePronounced}?`,
+        reprompts: `Shall I open the dictionary web page for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`,
+        shouldEndSession: false,
+        hasAttributes: {
+          state: STATES.OFFER_DICTIONARY_PUNCHOUT,
+          word: wordToBePronounced,
+        },
+        renderDocument: {
+          document: (doc) => {
+            return deepEqual(doc, wordPronouncedDocument);
+          },
+          hasDataSources: {
+            bodyTemplate2Data: (ds) => {
+              const educativeVisualMessage = `Now that you know how to pronounce ${wordToBePronounced}, you can ask for its meaning by saying "Alexa, define ${wordToBePronounced}"`;
+              return deepEqual(ds, wordPronouncedDatasource(wordToBePronounced, educativeVisualMessage).bodyTemplate2Data);
+            },
+          },
+        },
+      },
+      {
+        request: new buildNoIntent(true),
+        says: `Okay.`,
+        repromptsNothing: true,
+        shouldEndSession: true,
+      },
+    ]);
+  });
 });
 
 it("should increment the failure attempts count and reprompt the user if the spelling slot is missing altogether", async () => {
@@ -382,18 +479,15 @@ it("should spell the input and educate the user if the input is all lower case. 
 
       const outputSpeech = responseUsed.outputSpeech;
       expect(outputSpeech.ssml).to.equal(
-        `<speak>I would pronounce it as ${
-        wordsWithLowerCaseCharacters[i]
+        `<speak>I would pronounce it as ${wordsWithLowerCaseCharacters[i]
         }. By the way, I work best when you spell the word you want me to pronounce, instead of saying the entire word or phrase.</speak>`
       );
       expect(outputSpeech.type).to.equal("SSML");
 
       expect(responseUsed.reprompt).to.be.undefined;
 
-      const educativeVisualMessage = `Now that you know how to pronounce '${
-        wordsWithLowerCaseCharacters[i]
-        }', you can ask Alexa for its meaning by saying "Alexa, define ${
-        wordsWithLowerCaseCharacters[i]
+      const educativeVisualMessage = `Now that you know how to pronounce '${wordsWithLowerCaseCharacters[i]
+        }', you can ask Alexa for its meaning by saying "Alexa, define ${wordsWithLowerCaseCharacters[i]
         }".
 
 By the way, you might have tried to pronounce a word or a phrase but I work best when you spell the word you need pronunciation for. Say "Ask Pronunciations for help" to learn more.`;
@@ -449,53 +543,35 @@ it("should spell the words in the happy case", async () => {
     ["D. E. M. A. nd", "DEMAND"]
   ];
 
-  const events = getEventObjects("../test-data/event");
+  const event = importFresh("../test-data/apl_not_supported_event");
 
-  for (let j = 0; j < events.length; j++) {
-    let event = events[j];
+  for (let i = 0; i < wordsToBePronoucned.length; i++) {
+    event.request.intent.slots.Spelling.value = wordsToBePronoucned[i][0];
+    const wordToBePronounced = wordsToBePronoucned[i][1];
 
-    for (let i = 0; i < wordsToBePronoucned.length; i++) {
-      event.request.intent.slots.Spelling.value = wordsToBePronoucned[i][0];
-      const wordToBePronounced = wordsToBePronoucned[i][1];
+    const response = await unitUnderTest.handler(event, context);
+    const responseUsed = response.response;
+    assert(responseUsed.shouldEndSession);
 
-      const response = await unitUnderTest.handler(event, context);
-      const responseUsed = response.response;
-      assert(responseUsed.shouldEndSession);
+    const outputSpeech = responseUsed.outputSpeech;
+    expect(outputSpeech.ssml).to.equal(
+      "<speak>It is pronounced as " + wordToBePronounced + ".</speak>"
+    );
+    expect(outputSpeech.type).to.equal("SSML");
 
-      const outputSpeech = responseUsed.outputSpeech;
-      expect(outputSpeech.ssml).to.equal(
-        "<speak>It is pronounced as " + wordToBePronounced + ".</speak>"
-      );
-      expect(outputSpeech.type).to.equal("SSML");
+    expect(responseUsed.reprompt).to.be.undefined;
 
-      expect(responseUsed.reprompt).to.be.undefined;
+    const sessionAttributesUsed = response.sessionAttributes;
+    const educativeVisualMessage = `Now that you know how to pronounce ${wordToBePronounced}, you can ask for its meaning by saying "Alexa, define ${wordToBePronounced}"`;
+    assert(
+      Object.keys(sessionAttributesUsed).length === 0 &&
+      sessionAttributesUsed.constructor === Object
+    );
 
-      const sessionAttributesUsed = response.sessionAttributes;
-      const educativeVisualMessage = `Now that you know how to pronounce ${wordToBePronounced}, you can ask for its meaning by saying "Alexa, define ${wordToBePronounced}"`;
-      if (hasAPLSupport(event)) {
-        expect(sessionAttributesUsed.isAPLSupported).to.be.true;
-
-        verifyAPLDirectiveStructure(responseUsed.directives);
-        const directive = responseUsed.directives[0];
-        expect(directive.document).to.eql(wordPronouncedDocument);
-
-        const actualDatasource = directive.datasources;
-        expect(actualDatasource).to.eql(
-          wordPronouncedDatasource(wordToBePronounced, educativeVisualMessage)
-        );
-      }
-      else {
-        assert(
-          Object.keys(sessionAttributesUsed).length === 0 &&
-          sessionAttributesUsed.constructor === Object
-        );
-
-        const card = responseUsed.card;
-        expect(card.title).to.equal(`Pronunciation of '${wordToBePronounced}'`);
-        expect(card.type).to.equal("Simple");
-        expect(card.content).to.equal(educativeVisualMessage);
-      }
-    }
+    const card = responseUsed.card;
+    expect(card.title).to.equal(`Pronunciation of '${wordToBePronounced}'`);
+    expect(card.type).to.equal("Simple");
+    expect(card.content).to.equal(educativeVisualMessage);
   }
 });
 
@@ -850,19 +926,27 @@ it("should strip away extraneous phrases from the input and just pronounce the r
       const sessionAttributesUsed = response.sessionAttributes;
 
       const responseUsed = response.response;
-      assert(responseUsed.shouldEndSession);
 
       const outputSpeech = responseUsed.outputSpeech;
-      expect(outputSpeech.ssml).to.equal(
-        "<speak>It is pronounced as " + wordToBePronounced + ".</speak>"
-      );
-      expect(outputSpeech.type).to.equal("SSML");
-
-      expect(responseUsed.reprompt).to.be.undefined;
 
       const educativeVisualMessage = `Now that you know how to pronounce ${wordToBePronounced}, you can ask for its meaning by saying "Alexa, define ${wordToBePronounced}"`;
       if (hasAPLSupport(event)) {
+        assert(!responseUsed.shouldEndSession);
         expect(sessionAttributesUsed.isAPLSupported).to.be.true;
+
+        expect(outputSpeech.ssml).to.equal(
+          `<speak>It is pronounced as ${wordToBePronounced}. Shall I open the dictionary page for ${wordToBePronounced}?</speak>`
+        );
+        expect(outputSpeech.type).to.equal("SSML");
+        expect(responseUsed.reprompt.outputSpeech.ssml).to.equal(`<speak>Shall I open the dictionary web page for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?</speak>`);
+
+        const sessionAttributes = response.sessionAttributes;
+        expect(sessionAttributes.state).to.deep.equal(
+          STATES.OFFER_DICTIONARY_PUNCHOUT
+        );
+        expect(sessionAttributes.word).to.deep.equal(
+          wordToBePronounced
+        );
 
         verifyAPLDirectiveStructure(responseUsed.directives);
         const directive = responseUsed.directives[0];
@@ -874,19 +958,49 @@ it("should strip away extraneous phrases from the input and just pronounce the r
         );
       }
       else {
+        assert(responseUsed.shouldEndSession);
+
+        expect(outputSpeech.ssml).to.equal(
+          "<speak>It is pronounced as " + wordToBePronounced + ".</speak>"
+        );
+        expect(outputSpeech.type).to.equal("SSML");
+        expect(responseUsed.reprompt).to.be.undefined;
+
         assert(
           Object.keys(sessionAttributesUsed).length === 0 &&
           sessionAttributesUsed.constructor === Object
         );
-
-        const card = responseUsed.card;
-        expect(card.title).to.equal(`Pronunciation of '${wordToBePronounced}'`);
-        expect(card.type).to.equal("Simple");
-        expect(card.content).to.equal(educativeVisualMessage);
       }
+
+      const card = responseUsed.card;
+      expect(card.title).to.equal(`Pronunciation of '${wordToBePronounced}'`);
+      expect(card.type).to.equal("Simple");
+      expect(card.content).to.equal(educativeVisualMessage);
     }
   }
 });
+
+function buildHowToPronounceIntent(wordToBePronounced, isAplDevice = false) {
+  const howToPronounceIntent = new IntentRequestBuilder(skillSettings, 'HowToPronounceIntent')
+    .withInterfaces({ apl: isAplDevice })
+    .withSlotResolution(SPELLING_SLOT, wordToBePronounced, SPELLING_SLOT_TYPE, "entity resolution that does not matter").build();
+
+  return howToPronounceIntent;
+}
+
+function buildYesIntent(isAplDevice = false) {
+  const yesIntent = new IntentRequestBuilder(skillSettings, 'AMAZON.YesIntent')
+    .withInterfaces({ apl: isAplDevice }).build();
+
+  return yesIntent;
+}
+
+function buildNoIntent(isAplDevice = false) {
+  const noIntent = new IntentRequestBuilder(skillSettings, 'AMAZON.NoIntent')
+    .withInterfaces({ apl: isAplDevice }).build();
+
+  return noIntent;
+}
 
 /**
  * Verify the structure of the APL directives. We check that we are sending exactly
