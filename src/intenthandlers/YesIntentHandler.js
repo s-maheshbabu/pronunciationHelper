@@ -1,6 +1,12 @@
 const STATES = require("constants/States").states;
 const APL_CONSTANTS = require("constants/APL");
 
+const utilities = require("utilities");
+
+const applinks = require("constants/Constants").applinks;
+const ios = require("constants/Constants").ios;
+const android = require("constants/Constants").android;
+
 const wordPronouncedDocument = require("apl/document/WordPronouncedDocument.json");
 const wordPronouncedDatasource = require("apl/data/WordPronouncedDatasource");
 
@@ -30,7 +36,11 @@ module.exports = YesIntentHandler = {
     else if (sessionAttributes.state === STATES.OFFER_DICTIONARY_PUNCHOUT) {
       const { word } = sessionAttributes;
       // TODO: If word is missing, throw unexpected error. Write a test for that.
-      return punchOutToDictionary(handlerInput, word);
+      // TODO: Test the case where neither APL not AppLinks is supported. That would be an unexpected error.
+      if (utilities.isAplDevice(handlerInput))
+        return openDictionaryUrl(handlerInput, word);
+      else if (utilities.isAppLinksSupported(handlerInput))
+        return punchOutToDictionaryApp(handlerInput, word, 'Okay.', 'Please unlock your device to see the dictionary.');
     }
 
     return responseBuilder
@@ -40,7 +50,59 @@ module.exports = YesIntentHandler = {
   }
 };
 
-function punchOutToDictionary(handlerInput, word) {
+/**
+ * Builds an AppLink directive to direct AlexaForApps enabled devices to launch a dictionary app for the given word.
+ */
+function punchOutToDictionaryApp(handlerInput, word, unlockedSpeech, lockedScreenSpeech) {
+  let identifier = ios.DICTIONARY_IDENTIFIER, storeType = ios.STORE_TYPE;
+
+  const isAndroid = isAndroidBased(handlerInput);
+  if (isAndroid) {
+    identifier = android.DICTIONARY_IDENTIFIER;
+    storeType = android.STORE_TYPE;
+  }
+
+  const appLinkDirective = {
+    type: "Connections.StartConnection",
+    uri: "connection://AMAZON.LinkApp/1",
+    input: {
+      catalogInfo: {
+        identifier: identifier,
+        type: storeType,
+      },
+      actions: {
+        primary: {
+          type: applinks.UNIVERSAL_APP_LINK_TYPE,
+          link: buildDictionaryLink(word)
+        }
+      },
+      prompts: {
+        onAppLinked: {
+          prompt: {
+            ssml: `<speak>${unlockedSpeech}</speak>`,
+            type: "SSML"
+          },
+          defaultPromptBehavior: applinks.SPEAK_PROMPT_BEHAVIOR
+        },
+        onScreenLocked: {
+          prompt: {
+            ssml: `<speak>${lockedScreenSpeech}</speak>`,
+            type: "SSML"
+          }
+        }
+      }
+    }
+  };
+
+  const { responseBuilder } = handlerInput;
+  return responseBuilder
+    .speak(`Okay.`)
+    .withShouldEndSession(undefined)
+    .addDirective(appLinkDirective)
+    .getResponse();
+}
+
+function openDictionaryUrl(handlerInput, word) {
   const { responseBuilder } = handlerInput;
 
   return responseBuilder
@@ -50,16 +112,33 @@ function punchOutToDictionary(handlerInput, word) {
     .getResponse();
 }
 
+/**
+ * Builds a 'OpenURL' directive to direct APL devices to launch a dictionary web page for the given word.
+ * @param {*} word The word to which the URL points to
+ */
 function buildOpenUrlDirective(word) {
   return {
     type: APL_CONSTANTS.APL_COMMANDS_TYPE,
     token: APL_CONSTANTS.WORD_PRONOUNCED_VIEW_TOKEN,
     commands: [{
       type: "OpenURL",
-      source: `https://www.merriam-webster.com/dictionary/${word}`,
+      source: buildDictionaryLink(word),
       onFail: {}
     }],
   };
+}
+
+function buildDictionaryLink(word) {
+  return `https://www.merriam-webster.com/dictionary/${word}`;
+}
+
+/**
+ * Assumes AppLinks is supported and supported catalog types are already validated. Returns
+ * true is the request is coming from an Android based device.
+ */
+function isAndroidBased(handlerInput) {
+  const appLinksInterface = handlerInput.requestEnvelope.context[applinks.APP_LINK_INTERFACE];
+  return appLinksInterface.supportedCatalogTypes.includes(android.STORE_TYPE);
 }
 
 /*

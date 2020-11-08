@@ -24,6 +24,9 @@ const extraneousPhrases = require("constants/PhrasesToStrip");
 const STATES = require("constants/States").states;
 const APL_CONSTANTS = require("constants/APL");
 const SpellChecker = require("spellcheck/SpellChecker");
+const applinks = require("constants/Constants").applinks;
+const ios = require("constants/Constants").ios;
+const android = require("constants/Constants").android;
 
 const SPELLING_SLOT = "Spelling";
 const SPELLING_SLOT_TYPE = "ALL_WORDS";
@@ -51,13 +54,13 @@ afterEach(function () {
 });
 
 describe("Open a dictionary app or website after pronouncing the word in the happy case.", () => {
-  describe('should launch dictionary app (or fallback to website) after pronouncing the word in the happy case.', () => {
+  describe('should launch dictionary webpage on APL supporting devices after pronouncing the word in the happy case.', () => {
     const wordToBePronounced = 'DOG';
     alexaTest.test([
       {
         request: new buildHowToPronounceIntent(wordToBePronounced, true),
-        says: `It is pronounced as ${wordToBePronounced}. Shall I open the dictionary page for ${wordToBePronounced}?`,
-        reprompts: `Shall I open the dictionary web page for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`,
+        says: `It is pronounced as ${wordToBePronounced}. Shall I open the dictionary app for ${wordToBePronounced}?`,
+        reprompts: `Shall I open the dictionary app for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`,
         shouldEndSession: false,
         hasAttributes: {
           state: STATES.OFFER_DICTIONARY_PUNCHOUT,
@@ -96,13 +99,13 @@ describe("Open a dictionary app or website after pronouncing the word in the hap
     ]);
   });
 
-  describe('should handle gracefully if user declines the offer to have dictionary app (or fallback to website) launched.', () => {
+  describe('should handle gracefully if user declines the offer to have dictionary webpage launched on APL supporting devices.', () => {
     const wordToBePronounced = 'DOG';
     alexaTest.test([
       {
         request: new buildHowToPronounceIntent(wordToBePronounced, true),
-        says: `It is pronounced as ${wordToBePronounced}. Shall I open the dictionary page for ${wordToBePronounced}?`,
-        reprompts: `Shall I open the dictionary web page for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`,
+        says: `It is pronounced as ${wordToBePronounced}. Shall I open the dictionary app for ${wordToBePronounced}?`,
+        reprompts: `Shall I open the dictionary app for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`,
         shouldEndSession: false,
         hasAttributes: {
           state: STATES.OFFER_DICTIONARY_PUNCHOUT,
@@ -127,6 +130,74 @@ describe("Open a dictionary app or website after pronouncing the word in the hap
         shouldEndSession: true,
       },
     ]);
+  });
+
+  describe('should launch dictionary app on -Alexa for Apps- Android/iOS devices after pronouncing the word in the happy case.', () => {
+    const operatingSystems = [android, ios];
+    const wordToBePronounced = 'DOG';
+
+    operatingSystems.forEach(os => {
+      const howToPronounceIntent = new buildHowToPronounceIntent(wordToBePronounced, false);
+      addAppLinkSupport(howToPronounceIntent, os.STORE_TYPE);
+
+      const yesIntent = new buildYesIntent(false);
+      addAppLinkSupport(yesIntent, os.STORE_TYPE);
+
+      alexaTest.test([
+        {
+          request: howToPronounceIntent,
+          says: `It is pronounced as ${wordToBePronounced}. Shall I open the dictionary app for ${wordToBePronounced}?`,
+          reprompts: `Shall I open the dictionary app for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`,
+          shouldEndSession: false,
+          hasAttributes: {
+            state: STATES.OFFER_DICTIONARY_PUNCHOUT,
+            word: wordToBePronounced,
+          },
+        },
+        {
+          request: yesIntent,
+          says: `Okay.`,
+          repromptsNothing: true,
+          shouldEndSession: true,
+          callback: (response) => {
+            const appLinksDirective = response.response.directives[0];
+            expect(appLinksDirective).to.eql(buildDictionaryAppLinkDirective(`https://www.merriam-webster.com/dictionary/${wordToBePronounced}`, os, 'Okay.', 'Please unlock your device to see the dictionary.'));
+          },
+        },
+      ]);
+    });
+  });
+
+  describe('should handle gracefully if user declines the offer to open dictionary app on -Alexa for Apps- devices.', () => {
+    const operatingSystems = [android, ios];
+    const wordToBePronounced = 'DOG';
+
+    operatingSystems.forEach(os => {
+      const howToPronounceIntent = new buildHowToPronounceIntent(wordToBePronounced, false);
+      addAppLinkSupport(howToPronounceIntent, os.STORE_TYPE);
+
+      const yesIntent = new buildYesIntent(false);
+      addAppLinkSupport(yesIntent, os.STORE_TYPE);
+
+      alexaTest.test([
+        {
+          request: howToPronounceIntent,
+          says: `It is pronounced as ${wordToBePronounced}. Shall I open the dictionary app for ${wordToBePronounced}?`,
+          reprompts: `Shall I open the dictionary app for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`,
+          shouldEndSession: false,
+          hasAttributes: {
+            state: STATES.OFFER_DICTIONARY_PUNCHOUT,
+            word: wordToBePronounced,
+          },
+        },
+        {
+          request: new buildNoIntent(true),
+          says: `Okay.`,
+          repromptsNothing: true,
+          shouldEndSession: true,
+        },
+      ]);
+    });
   });
 });
 
@@ -935,10 +1006,10 @@ it("should strip away extraneous phrases from the input and just pronounce the r
         expect(sessionAttributesUsed.isAPLSupported).to.be.true;
 
         expect(outputSpeech.ssml).to.equal(
-          `<speak>It is pronounced as ${wordToBePronounced}. Shall I open the dictionary page for ${wordToBePronounced}?</speak>`
+          `<speak>It is pronounced as ${wordToBePronounced}. Shall I open the dictionary app for ${wordToBePronounced}?</speak>`
         );
         expect(outputSpeech.type).to.equal("SSML");
-        expect(responseUsed.reprompt.outputSpeech.ssml).to.equal(`<speak>Shall I open the dictionary web page for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?</speak>`);
+        expect(responseUsed.reprompt.outputSpeech.ssml).to.equal(`<speak>Shall I open the dictionary app for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?</speak>`);
 
         const sessionAttributes = response.sessionAttributes;
         expect(sessionAttributes.state).to.deep.equal(
@@ -979,6 +1050,64 @@ it("should strip away extraneous phrases from the input and just pronounce the r
     }
   }
 });
+
+/**
+ * ask-sdk-test module currently does not support AppLinks interface. So, for the time being,
+ * this method adds AppLinks to the request objects built using ask-sdk-test.
+ * Once this issue is resolved, this function should be removed and we should use the ask-sdk-test module
+ * to build intents with AppLinks support.
+ * https://github.com/taimos/ask-sdk-test/issues/19
+ * @param {*} intent the object to which app links support should be added
+ * @param {*} catalogType android | ios
+ */
+function addAppLinkSupport(intent, catalogType) {
+  intent.context[applinks.APP_LINK_INTERFACE] = {
+    supportedCatalogTypes: [
+      catalogType
+    ]
+  };
+}
+
+/**
+ * Builds the app link directive.
+ * @param {*} link the universal link to punch out to
+ * @param {*} os android | ios
+ * @param {*} unlockedScreenSpeech to be rendered when the screen is unlocked
+ * @param {*} lockedScreenSpeech  to be rendered when the screen is locked
+ */
+function buildDictionaryAppLinkDirective(link, os, unlockedScreenSpeech, lockedScreenSpeech) {
+  return {
+    type: "Connections.StartConnection",
+    uri: "connection://AMAZON.LinkApp/1",
+    input: {
+      catalogInfo: {
+        identifier: os.DICTIONARY_IDENTIFIER,
+        type: os.STORE_TYPE,
+      },
+      actions: {
+        primary: {
+          type: "UNIVERSAL_LINK",
+          link: link
+        }
+      },
+      prompts: {
+        onAppLinked: {
+          prompt: {
+            ssml: `<speak>${unlockedScreenSpeech}</speak>`,
+            type: "SSML"
+          },
+          defaultPromptBehavior: "SPEAK"
+        },
+        onScreenLocked: {
+          prompt: {
+            ssml: `<speak>${lockedScreenSpeech}</speak>`,
+            type: "SSML"
+          }
+        }
+      }
+    }
+  }
+}
 
 function buildHowToPronounceIntent(wordToBePronounced, isAplDevice = false) {
   const howToPronounceIntent = new IntentRequestBuilder(skillSettings, 'HowToPronounceIntent')

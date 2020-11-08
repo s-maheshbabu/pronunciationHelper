@@ -3,9 +3,12 @@
     "apis": {
       "custom": {
         "endpoint": {
-          "uri": "arn:aws:lambda:us-east-1:837603326872:function:pronunciationHelper:prod-NameFreeInvoke"
+          "uri": "arn:aws:lambda:us-east-1:837603326872:function:pronunciationHelper:prod-AlexaForApps"
         },
         "interfaces": [
+          {
+            "type": "APP_LINKS"
+          },
           {
             "supportedViewports": [
               {
@@ -43,7 +46,35 @@
             ],
             "type": "ALEXA_PRESENTATION_APL"
           }
-        ]
+        ],
+        "appLink": {
+          "linkedApplications": [
+            {
+              "catalogInfo": {
+                "identifier": "com.merriamwebster",
+                "type": "GOOGLE_PLAY_STORE"
+              },
+              "domains": [
+                "merriam-webster.com"
+              ],
+              "friendlyName": {
+                "default": "Merriam Webster"
+              }
+            },
+            {
+              "catalogInfo": {
+                "identifier": "id399452287",
+                "type": "IOS_APP_STORE"
+              },
+              "domains": [
+                "merriam-webster.com"
+              ],
+              "friendlyName": {
+                "default": "Merriam Webster"
+              }
+            }
+          ]
+        }
       }
     },
     "manifestVersion": "1.0",
@@ -81,9 +112,9 @@
             "spelling",
             "accent"
           ],
-          "largeIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/ccf2/f74888253446466e9fcfc03cb657dd61/APP_ICON_LARGE?versionId=Tu4leX0FttGQObwI8EN3fXvM2IXrdjJv&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20200827T164719Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86400&X-Amz-Credential=AKIAWBV6LQ4QIH3MSWPB%2F20200827%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=c6aeb0f278700fe81889dcc13df07a0ea9b3beb3e64bf9063353829d495ec882",
+          "largeIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/ccf2/f74888253446466e9fcfc03cb657dd61/APP_ICON_LARGE?versionId=Tu4leX0FttGQObwI8EN3fXvM2IXrdjJv&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20201009T054951Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86400&X-Amz-Credential=AKIAWBV6LQ4QHAYALYJ7%2F20201009%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=4ffd7ce9d292f8d3b1d78edb747a613bca364e80e0685814117af75faf432441",
           "name": "Pronunciations",
-          "smallIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/91d3/5a48f5ddc7d64982a2773e40a636c8b0/APP_ICON?versionId=RU7ePOGhxD5pgVY9NEUVkr8Q4u2VsRWX&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20200827T164719Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86400&X-Amz-Credential=AKIAWBV6LQ4QIH3MSWPB%2F20200827%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=cf12b5732f4503d8206800f54552b5adf991f6b21da385a2a527469d59150566",
+          "smallIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/91d3/5a48f5ddc7d64982a2773e40a636c8b0/APP_ICON?versionId=RU7ePOGhxD5pgVY9NEUVkr8Q4u2VsRWX&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20201009T054951Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86400&X-Amz-Credential=AKIAWBV6LQ4QHAYALYJ7%2F20201009%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=fb4e2a85651df6a5d3c9975b1be1558be648ff8a84515e196961a2446a5679b0",
           "summary": "Learn how to pronounce a word by spelling it out to Alexa.",
           "updatesDescription": "Support for Alexa Presentation Language was added. Instead of a plain text card, the skill now presents visually pleasing cards using APL."
         },
@@ -102,9 +133,9 @@
             "spelling",
             "accent"
           ],
-          "largeIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/d83b/1103a64597a142f9b0ae740a06b6fc00/APP_ICON_LARGE?versionId=NpBGRmy6L4m81.sI4zQuIwowkGGYUYr4&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20200827T164719Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86400&X-Amz-Credential=AKIAWBV6LQ4QIH3MSWPB%2F20200827%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=94fe73d8f6db80f0069338c2cf33468475d93719278daa03ada9c3280afe79ee",
+          "largeIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/d83b/1103a64597a142f9b0ae740a06b6fc00/APP_ICON_LARGE?versionId=NpBGRmy6L4m81.sI4zQuIwowkGGYUYr4&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20201009T054951Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86400&X-Amz-Credential=AKIAWBV6LQ4QHAYALYJ7%2F20201009%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=3864af7468f500d71e131f4103901086c0e78d4e7402f45cf3d6bf8e6a3d7280",
           "name": "Pronunciations",
-          "smallIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/3e1c/b94bdfb070e048dc945d379a85382316/APP_ICON?versionId=G.HeYBGo2aEutnZV4URryAqtMgWc.V2x&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20200827T164719Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86400&X-Amz-Credential=AKIAWBV6LQ4QIH3MSWPB%2F20200827%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=7978fa0a53f7c64de080e005cae35f4ba63beb380fa4fb92a2c64576205f8030",
+          "smallIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/3e1c/b94bdfb070e048dc945d379a85382316/APP_ICON?versionId=G.HeYBGo2aEutnZV4URryAqtMgWc.V2x&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20201009T054951Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86400&X-Amz-Credential=AKIAWBV6LQ4QHAYALYJ7%2F20201009%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=2001c24a10de5102fced83c63bb6cbefea774a630870adf3ec8db817c1c5253a",
           "summary": "Learn how to pronounce a word by spelling it out to Alexa.",
           "updatesDescription": "Support for Alexa Presentation Language was added. Instead of a plain text card, the skill now presents visually pleasing cards using APL."
         },
@@ -123,9 +154,9 @@
             "spelling",
             "accent"
           ],
-          "largeIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/4764/5a4bd140c70f4fb68fdb9bdaf6e1b623/APP_ICON_LARGE?versionId=IR_SNYyV1hUEEtgg_4bDQJOl8xYja80h&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20200827T164719Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86399&X-Amz-Credential=AKIAWBV6LQ4QIH3MSWPB%2F20200827%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=d9716fb09abec3b5c619d6dc857b69e20de9474e5848e7c561c1836c4165d8c1",
+          "largeIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/4764/5a4bd140c70f4fb68fdb9bdaf6e1b623/APP_ICON_LARGE?versionId=IR_SNYyV1hUEEtgg_4bDQJOl8xYja80h&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20201009T054951Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86400&X-Amz-Credential=AKIAWBV6LQ4QHAYALYJ7%2F20201009%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=5663f3233cb0c96bb55b0b224b9d05e521f9ecc2e55cd7f916a9710256040381",
           "name": "Pronunciations",
-          "smallIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/3498/a45e2223fa0a48f7b57ad76e93ccec44/APP_ICON?versionId=7fD.CnuP2LLIVupt7te2r1mXpY8hTCd.&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20200827T164719Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86400&X-Amz-Credential=AKIAWBV6LQ4QIH3MSWPB%2F20200827%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=d0b6ce4f2ae1ae690a838100b9be71d7d27a2498007f805ef6a5c0e70e41f408",
+          "smallIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/3498/a45e2223fa0a48f7b57ad76e93ccec44/APP_ICON?versionId=7fD.CnuP2LLIVupt7te2r1mXpY8hTCd.&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20201009T054951Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86400&X-Amz-Credential=AKIAWBV6LQ4QHAYALYJ7%2F20201009%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=664aab6e648defd7f7351d27430274b39f1ea7482021d04b188ea2a7040ab7a6",
           "summary": "Learn how to pronounce a word by spelling it out to Alexa.",
           "updatesDescription": "Support for Alexa Presentation Language was added. Instead of a plain text card, the skill now presents visually pleasing cards using APL."
         },
@@ -144,9 +175,9 @@
             "spelling",
             "accent"
           ],
-          "largeIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/e069/bed445e503dc4c1aaa742c2769244f9a/APP_ICON_LARGE?versionId=RRGeENODZCQiVroxDoWrk0pYPHPP2H_n&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20200827T164719Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86400&X-Amz-Credential=AKIAWBV6LQ4QIH3MSWPB%2F20200827%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=4ce21fdf817ac53dfc10621076a887e212b9fcdb312949ed3d5b1f423184af2e",
+          "largeIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/e069/bed445e503dc4c1aaa742c2769244f9a/APP_ICON_LARGE?versionId=RRGeENODZCQiVroxDoWrk0pYPHPP2H_n&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20201009T054951Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86400&X-Amz-Credential=AKIAWBV6LQ4QHAYALYJ7%2F20201009%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=952885ab7700ea140d64b35c58167664ab0e382306fe144775e545ff4f8a6b9c",
           "name": "Pronunciations",
-          "smallIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/f340/69a7814f05284abfb25f56f0755b8879/APP_ICON?versionId=TAevZoASQe4Za0uJ8k_jYbOJBSMIx3bk&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20200827T164719Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86400&X-Amz-Credential=AKIAWBV6LQ4QIH3MSWPB%2F20200827%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=2d95d2546d4bfc215da9347d02ad91a618f030a030e4a32c26b843ba9190078c",
+          "smallIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/f340/69a7814f05284abfb25f56f0755b8879/APP_ICON?versionId=TAevZoASQe4Za0uJ8k_jYbOJBSMIx3bk&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20201009T054951Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86399&X-Amz-Credential=AKIAWBV6LQ4QHAYALYJ7%2F20201009%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=3e488a06e8b33f4e2ba3ed4ee145a5d1cba92b2235768ac5694cbec518719705",
           "summary": "Learn how to pronounce a word by spelling it out to Alexa.",
           "updatesDescription": "Support for Alexa Presentation Language was added. Instead of a plain text card, the skill now presents visually pleasing cards using APL."
         },
@@ -165,9 +196,9 @@
             "spelling",
             "accent"
           ],
-          "largeIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/af48/6d4ad5ba45a24b998c04408d9110651a/APP_ICON_LARGE?versionId=26NpFgovYNSwOGSfmtA3ijyponwcWCAP&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20200827T164719Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86400&X-Amz-Credential=AKIAWBV6LQ4QIH3MSWPB%2F20200827%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=ab9881fe61860df30efcbc8e301efa4cdeca103dad69f93ad7aabf4e7888e065",
+          "largeIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/af48/6d4ad5ba45a24b998c04408d9110651a/APP_ICON_LARGE?versionId=26NpFgovYNSwOGSfmtA3ijyponwcWCAP&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20201009T054951Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86400&X-Amz-Credential=AKIAWBV6LQ4QHAYALYJ7%2F20201009%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=710e0f1ad49345b5c3bee49f695ba63405f6e3ebc3dd429a7c54f155fc780034",
           "name": "Pronunciations",
-          "smallIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/9d89/914b784968d5471d99c0e2d9cd3a0084/APP_ICON?versionId=JOrMxN66hqG8UDnbfniHBcWjcVae8N2s&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20200827T164719Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86400&X-Amz-Credential=AKIAWBV6LQ4QIH3MSWPB%2F20200827%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=130fff442ad73eaffc0313fe1730a23a226c5ca1ade66036f4280b425b743eb8",
+          "smallIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/9d89/914b784968d5471d99c0e2d9cd3a0084/APP_ICON?versionId=JOrMxN66hqG8UDnbfniHBcWjcVae8N2s&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20201009T054951Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86400&X-Amz-Credential=AKIAWBV6LQ4QHAYALYJ7%2F20201009%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=7f50293565fcdb6cb6ea13d0b68fdac8f6b5618658af5dd90efaae86782bb0b7",
           "summary": "Learn how to pronounce a word by spelling it out to Alexa.",
           "updatesDescription": "Support for Alexa Presentation Language was added. Instead of a plain text card, the skill now presents visually pleasing cards using APL."
         }

@@ -36,7 +36,6 @@ module.exports = HowToPronounceIntentHandler;
 function pronounceTheWord(handlerInput) {
   const { requestEnvelope, attributesManager, responseBuilder } = handlerInput;
   const intent = requestEnvelope.request.intent;
-  const isAplDevice = utilities.isAplDevice(handlerInput);
 
   var cardTitle = `Pronunciations`;
   var wordToBePronoucnedSlot = intent.slots.Spelling;
@@ -150,23 +149,25 @@ By the way, you might have tried to pronounce a word or a phrase but I work best
           .getResponse();
       } else {
         const educativeVisualMessage = `Now that you know how to pronounce ${wordToBePronounced}, you can ask for its meaning by saying "Alexa, define ${wordToBePronounced}"`;
+        const isAplDevice = utilities.isAplDevice(handlerInput);
+        const isAppLinksSupported = utilities.isAppLinksSupported(handlerInput);
 
-        if (isAplDevice) {
+        if (isAplDevice || isAppLinksSupported) {
           const attributes = attributesManager.getSessionAttributes() || {};
           attributes.state = STATES.OFFER_DICTIONARY_PUNCHOUT;
           attributes.word = wordToBePronounced;
           attributesManager.setSessionAttributes(attributes);
 
           responseBuilder
-            .speak(`It is pronounced as ${wordToBePronounced}. Shall I open the dictionary page for ${wordToBePronounced}?`)
-            .reprompt(`Shall I open the dictionary web page for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`)
+            .speak(`It is pronounced as ${wordToBePronounced}. Shall I open the dictionary app for ${wordToBePronounced}?`)
+            .reprompt(`Shall I open the dictionary app for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`)
         }
         else {
           responseBuilder
             .speak(`It is pronounced as ${wordToBePronounced}.`)
         }
         return responseBuilder
-          .withShouldEndSession(isAplDevice ? false : true)
+          .withShouldEndSession(isAplDevice || isAppLinksSupported ? false : true)
           .withSimpleCard(
             `Pronunciation of '${wordToBePronounced}'`,
             educativeVisualMessage
