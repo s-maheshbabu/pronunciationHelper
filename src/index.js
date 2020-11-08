@@ -28,6 +28,12 @@ const LogRequestInterceptor = {
   },
 };
 
+const LogResponseInterceptor = {
+  process(handlerInput, response) {
+    console.log(`RESPONSE = ${JSON.stringify(response)}`);
+  },
+};
+
 // --------------- Skill Initialization -----------------------
 let skill;
 
@@ -45,11 +51,14 @@ exports.handler = async function (event, context) {
         SessionResumedRequestHandler,
       )
       .addRequestInterceptors(
-        SpellCheckerInitializationInterceptor,
         APLSupportVerificationInterceptor,
         LogRequestInterceptor,
+        SpellCheckerInitializationInterceptor,
       )
-      .addResponseInterceptors(ResponseSanitizationInterceptor)
+      .addResponseInterceptors(
+        ResponseSanitizationInterceptor,
+        LogResponseInterceptor,
+      )
       .addErrorHandlers(ErrorHandler)
       .create();
   }
