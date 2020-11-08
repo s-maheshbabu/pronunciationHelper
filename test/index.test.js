@@ -405,19 +405,13 @@ it("should render an error message for unknown intents.", async () => {
   expect(sessionAttributesUsed.isAPLSupported).to.be.true;
 
   const responseUsed = response.response;
-  assert(!responseUsed.shouldEndSession);
+  assert(responseUsed.shouldEndSession);
 
   const outputSpeech = responseUsed.outputSpeech;
   expect(outputSpeech.ssml).to.equal(
     `<speak>Sorry, I didn't get that. Please try again.</speak>`
   );
   expect(outputSpeech.type).to.equal("SSML");
-
-  const reprompt = responseUsed.reprompt;
-  expect(reprompt.outputSpeech.ssml).to.equal(
-    "<speak>Sorry, I didn't get that. Please try again.</speak>"
-  );
-  expect(reprompt.outputSpeech.type).to.equal("SSML");
 });
 
 it("handles the AMAZON.CancelIntent properly", async () => {

@@ -7,8 +7,7 @@ module.exports = ErrorHandler = {
 
     return handlerInput.responseBuilder
       .speak("Sorry, I didn't get that. Please try again.")
-      .reprompt("Sorry, I didn't get that. Please try again.")
-      .withShouldEndSession(false)
+      .withShouldEndSession(true)
       .getResponse();
   }
 };
