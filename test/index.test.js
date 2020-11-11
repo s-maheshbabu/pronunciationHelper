@@ -156,7 +156,6 @@ describe("Open a dictionary app or website after pronouncing the word in the hap
         },
         {
           request: yesIntent,
-          says: `Okay.`,
           repromptsNothing: true,
           shouldEndSession: true,
           callback: (response) => {

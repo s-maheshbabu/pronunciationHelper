@@ -96,7 +96,6 @@ function punchOutToDictionaryApp(handlerInput, word, unlockedSpeech, lockedScree
 
   const { responseBuilder } = handlerInput;
   return responseBuilder
-    .speak(`Okay.`)
     .withShouldEndSession(undefined)
     .addDirective(appLinkDirective)
     .getResponse();
