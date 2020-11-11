@@ -107,7 +107,7 @@ function openDictionaryUrl(handlerInput, word) {
 
   return responseBuilder
     .speak(`Okay.`)
-    .withShouldEndSession(true)
+    .withShouldEndSession(undefined)
     .addDirective(buildOpenUrlDirective(word))
     .getResponse();
 }

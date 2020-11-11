@@ -61,7 +61,7 @@ describe("Open a dictionary app or website after pronouncing the word in the hap
         request: new buildHowToPronounceIntent(wordToBePronounced, true),
         says: `It is pronounced as ${wordToBePronounced}. Shall I open the dictionary app for ${wordToBePronounced}?`,
         reprompts: `Shall I open the dictionary app for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`,
-        shouldEndSession: false,
+        shouldEndSession: undefined,
         hasAttributes: {
           state: STATES.OFFER_DICTIONARY_PUNCHOUT,
           word: wordToBePronounced,
