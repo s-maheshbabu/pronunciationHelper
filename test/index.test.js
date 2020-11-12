@@ -59,8 +59,8 @@ describe("Open a dictionary app or website after pronouncing the word in the hap
     alexaTest.test([
       {
         request: new buildHowToPronounceIntent(wordToBePronounced, true),
-        says: `It is pronounced as ${wordToBePronounced}. Shall I open the dictionary app for ${wordToBePronounced}?`,
-        reprompts: `Shall I open the dictionary app for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`,
+        says: `It is pronounced as ${wordToBePronounced}. Shall I open the dictionary for ${wordToBePronounced}?`,
+        reprompts: `Shall I open the dictionary for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`,
         shouldEndSession: undefined,
         hasAttributes: {
           state: STATES.OFFER_DICTIONARY_PUNCHOUT,
@@ -104,8 +104,8 @@ describe("Open a dictionary app or website after pronouncing the word in the hap
     alexaTest.test([
       {
         request: new buildHowToPronounceIntent(wordToBePronounced, true),
-        says: `It is pronounced as ${wordToBePronounced}. Shall I open the dictionary app for ${wordToBePronounced}?`,
-        reprompts: `Shall I open the dictionary app for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`,
+        says: `It is pronounced as ${wordToBePronounced}. Shall I open the dictionary for ${wordToBePronounced}?`,
+        reprompts: `Shall I open the dictionary for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`,
         shouldEndSession: false,
         hasAttributes: {
           state: STATES.OFFER_DICTIONARY_PUNCHOUT,
@@ -132,7 +132,7 @@ describe("Open a dictionary app or website after pronouncing the word in the hap
     ]);
   });
 
-  describe('should launch dictionary app on -Alexa for Apps- Android/iOS devices after pronouncing the word in the happy case.', () => {
+  describe('should launch dictionary on -Alexa for Apps- Android/iOS devices after pronouncing the word in the happy case.', () => {
     const operatingSystems = [android, ios];
     const wordToBePronounced = 'DOG';
 
@@ -146,8 +146,8 @@ describe("Open a dictionary app or website after pronouncing the word in the hap
       alexaTest.test([
         {
           request: howToPronounceIntent,
-          says: `It is pronounced as ${wordToBePronounced}. Shall I open the dictionary app for ${wordToBePronounced}?`,
-          reprompts: `Shall I open the dictionary app for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`,
+          says: `It is pronounced as ${wordToBePronounced}. Shall I open the dictionary for ${wordToBePronounced}?`,
+          reprompts: `Shall I open the dictionary for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`,
           shouldEndSession: false,
           hasAttributes: {
             state: STATES.OFFER_DICTIONARY_PUNCHOUT,
@@ -167,7 +167,7 @@ describe("Open a dictionary app or website after pronouncing the word in the hap
     });
   });
 
-  describe('should handle gracefully if user declines the offer to open dictionary app on -Alexa for Apps- devices.', () => {
+  describe('should handle gracefully if user declines the offer to open dictionary on -Alexa for Apps- devices.', () => {
     const operatingSystems = [android, ios];
     const wordToBePronounced = 'DOG';
 
@@ -181,8 +181,8 @@ describe("Open a dictionary app or website after pronouncing the word in the hap
       alexaTest.test([
         {
           request: howToPronounceIntent,
-          says: `It is pronounced as ${wordToBePronounced}. Shall I open the dictionary app for ${wordToBePronounced}?`,
-          reprompts: `Shall I open the dictionary app for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`,
+          says: `It is pronounced as ${wordToBePronounced}. Shall I open the dictionary for ${wordToBePronounced}?`,
+          reprompts: `Shall I open the dictionary for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`,
           shouldEndSession: false,
           hasAttributes: {
             state: STATES.OFFER_DICTIONARY_PUNCHOUT,
@@ -999,10 +999,10 @@ it("should strip away extraneous phrases from the input and just pronounce the r
         expect(sessionAttributesUsed.isAPLSupported).to.be.true;
 
         expect(outputSpeech.ssml).to.equal(
-          `<speak>It is pronounced as ${wordToBePronounced}. Shall I open the dictionary app for ${wordToBePronounced}?</speak>`
+          `<speak>It is pronounced as ${wordToBePronounced}. Shall I open the dictionary for ${wordToBePronounced}?</speak>`
         );
         expect(outputSpeech.type).to.equal("SSML");
-        expect(responseUsed.reprompt.outputSpeech.ssml).to.equal(`<speak>Shall I open the dictionary app for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?</speak>`);
+        expect(responseUsed.reprompt.outputSpeech.ssml).to.equal(`<speak>Shall I open the dictionary for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?</speak>`);
 
         const sessionAttributes = response.sessionAttributes;
         expect(sessionAttributes.state).to.deep.equal(

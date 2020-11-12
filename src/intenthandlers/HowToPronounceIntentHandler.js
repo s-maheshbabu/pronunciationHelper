@@ -159,8 +159,8 @@ By the way, you might have tried to pronounce a word or a phrase but I work best
           attributesManager.setSessionAttributes(attributes);
 
           responseBuilder
-            .speak(`It is pronounced as ${wordToBePronounced}. Shall I open the dictionary app for ${wordToBePronounced}?`)
-            .reprompt(`Shall I open the dictionary app for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`)
+            .speak(`It is pronounced as ${wordToBePronounced}. Shall I open the dictionary for ${wordToBePronounced}?`)
+            .reprompt(`Shall I open the dictionary for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`)
         }
         else {
           responseBuilder
