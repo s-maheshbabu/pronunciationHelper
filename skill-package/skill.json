@@ -98,7 +98,7 @@
       "isAvailableWorldwide": true,
       "locales": {
         "en-US": {
-          "description": "*** You can ask Alexa to pronounce a word given its spelling. Works with all English words. In case Alexa misheard you or suspects that you provided an incorrect spelling, she will still pronounce the word and then will give you some suggestions on what the correct spelling could be.\n\nThis skill works well if you enunciate the letters clearly and slowly.\n\nThe skill is designed for both voice-only Alexa devices and Alexa devices with a screen.",
+          "description": "You can ask Alexa to pronounce a word given its spelling. Works with all English words. In case Alexa misheard you or suspects that you provided an incorrect spelling, she will still pronounce the word and then offer suggestions on what the correct spelling could be.\n\nThis skill works well if you enunciate the letters clearly and slowly.\n\nWhen used on an Android or iOS device, the skill can also help you learn more about the word by launching the Merriam-Webster™ app or webpage at the end of the session.\n\nThe skill is designed for both voice-only Alexa devices and Alexa devices with a screen.",
           "examplePhrases": [
             "Alexa, open pronunciations and pronounce A. L. E. X. A.",
             "Alexa, open pronunciations",
@@ -119,7 +119,7 @@
           "updatesDescription": "Support for Alexa Presentation Language was added. Instead of a plain text card, the skill now presents visually pleasing cards using APL."
         },
         "en-CA": {
-          "description": "You can ask Alexa to pronounce a word given its spelling. Works with all English words. In case Alexa misheard you or suspects that you provided an incorrect spelling, she will still pronounce the word and then will give you some suggestions on what the correct spelling could be.\n\nThis skill works well if you enunciate the letters clearly and slowly.\n\nThe skill is designed for both voice-only Alexa devices and Alexa devices with a screen.",
+          "description": "You can ask Alexa to pronounce a word given its spelling. Works with all English words. In case Alexa misheard you or suspects that you provided an incorrect spelling, she will still pronounce the word and then offer suggestions on what the correct spelling could be.\n\nThis skill works well if you enunciate the letters clearly and slowly.\n\nWhen used on an Android or iOS device, the skill can also help you learn more about the word by launching the Merriam-Webster™ app or webpage at the end of the session.\n\nThe skill is designed for both voice-only Alexa devices and Alexa devices with a screen.",
           "examplePhrases": [
             "Alexa, open pronunciations and pronounce A. L. E. X. A.",
             "Alexa, open pronunciations",
@@ -140,7 +140,7 @@
           "updatesDescription": "Support for Alexa Presentation Language was added. Instead of a plain text card, the skill now presents visually pleasing cards using APL."
         },
         "en-IN": {
-          "description": "You can ask Alexa to pronounce a word given its spelling. Works with all English words. In case Alexa misheard you or suspects that you provided an incorrect spelling, she will still pronounce the word and then will give you some suggestions on what the correct spelling could be.\n\nThis skill works well if you enunciate the letters clearly and slowly.\n\nThe skill is designed for both voice-only Alexa devices and Alexa devices with a screen.",
+          "description": "You can ask Alexa to pronounce a word given its spelling. Works with all English words. In case Alexa misheard you or suspects that you provided an incorrect spelling, she will still pronounce the word and then offer suggestions on what the correct spelling could be.\n\nThis skill works well if you enunciate the letters clearly and slowly.\n\nWhen used on an Android or iOS device, the skill can also help you learn more about the word by launching the Merriam-Webster™ app or webpage at the end of the session.\n\nThe skill is designed for both voice-only Alexa devices and Alexa devices with a screen.",
           "examplePhrases": [
             "Alexa, open pronunciations and pronounce A. L. E. X. A.",
             "Alexa, open pronunciations",
@@ -161,7 +161,7 @@
           "updatesDescription": "Support for Alexa Presentation Language was added. Instead of a plain text card, the skill now presents visually pleasing cards using APL."
         },
         "en-AU": {
-          "description": "You can ask Alexa to pronounce a word given its spelling. Works with all English words. In case Alexa misheard you or suspects that you provided an incorrect spelling, she will still pronounce the word and then will give you some suggestions on what the correct spelling could be.\n\nThis skill works well if you enunciate the letters clearly and slowly.\n\nThe skill is designed for both voice-only Alexa devices and Alexa devices with a screen.",
+          "description": "You can ask Alexa to pronounce a word given its spelling. Works with all English words. In case Alexa misheard you or suspects that you provided an incorrect spelling, she will still pronounce the word and then offer suggestions on what the correct spelling could be.\n\nThis skill works well if you enunciate the letters clearly and slowly.\n\nWhen used on an Android or iOS device, the skill can also help you learn more about the word by launching the Merriam-Webster™ app or webpage at the end of the session.\n\nThe skill is designed for both voice-only Alexa devices and Alexa devices with a screen.",
           "examplePhrases": [
             "Alexa, open pronunciations and pronounce A. L. E. X. A.",
             "Alexa, open pronunciations",
@@ -182,7 +182,7 @@
           "updatesDescription": "Support for Alexa Presentation Language was added. Instead of a plain text card, the skill now presents visually pleasing cards using APL."
         },
         "en-GB": {
-          "description": "You can ask Alexa to pronounce a word given its spelling. Works with all English words. In case Alexa misheard you or suspects that you provided an incorrect spelling, she will still pronounce the word and then will give you some suggestions on what the correct spelling could be.\n\nThis skill works well if you enunciate the letters clearly and slowly.\n\nThe skill is designed for both voice-only Alexa devices and Alexa devices with a screen.",
+          "description": "You can ask Alexa to pronounce a word given its spelling. Works with all English words. In case Alexa misheard you or suspects that you provided an incorrect spelling, she will still pronounce the word and then offer suggestions on what the correct spelling could be.\n\nThis skill works well if you enunciate the letters clearly and slowly.\n\nWhen used on an Android or iOS device, the skill can also help you learn more about the word by launching the Merriam-Webster™ app or webpage at the end of the session.\n\nThe skill is designed for both voice-only Alexa devices and Alexa devices with a screen.",
           "examplePhrases": [
             "Alexa, ask pronunciations how to pronounce A. L. E. X. A.",
             "Alexa, open pronunciations",
