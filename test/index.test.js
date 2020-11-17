@@ -53,7 +53,7 @@ afterEach(function () {
   decache("../test-data/event");
 });
 
-describe.skip("Open a dictionary app or website after pronouncing the word in the happy case.", () => {
+describe("Open a dictionary app or website after pronouncing the word in the happy case.", () => {
   describe('should launch dictionary webpage on APL supporting devices after pronouncing the word in the happy case.', () => {
     const wordToBePronounced = 'DOG';
     alexaTest.test([
@@ -970,7 +970,7 @@ it(`should render an error message if we received a YesIntent but the session at
   }
 });
 
-it.skip("should strip away extraneous phrases from the input and just pronounce the remaining word.", async () => {
+it("should strip away extraneous phrases from the input and just pronounce the remaining word.", async () => {
   const wordToBePronounced = "DOG";
   const inputs = [];
   for (let i = 0; i < extraneousPhrases.length; i++) {

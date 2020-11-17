@@ -152,7 +152,7 @@ By the way, you might have tried to pronounce a word or a phrase but I work best
         const isAplDevice = utilities.isAplDevice(handlerInput);
         const isAppLinksSupported = utilities.isAppLinksSupported(handlerInput);
 
-        if (false) {
+        if (isAplDevice || isAppLinksSupported) {
           const attributes = attributesManager.getSessionAttributes() || {};
           attributes.state = STATES.OFFER_DICTIONARY_PUNCHOUT;
           attributes.word = wordToBePronounced;
@@ -167,7 +167,7 @@ By the way, you might have tried to pronounce a word or a phrase but I work best
             .speak(`It is pronounced as ${wordToBePronounced}.`)
         }
         return responseBuilder
-          .withShouldEndSession(true)
+          .withShouldEndSession(isAplDevice || isAppLinksSupported ? false : true)
           .withSimpleCard(
             `Pronunciation of '${wordToBePronounced}'`,
             educativeVisualMessage
