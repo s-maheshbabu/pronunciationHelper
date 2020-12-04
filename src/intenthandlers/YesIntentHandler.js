@@ -164,7 +164,7 @@ function renderSpellSuggestions(handlerInput) {
   if (suggestedSpellings.length) {
     return responseBuilder
       .speak(
-        `If you meant <say-as interpret-as="spell-out">${suggestion}</say-as>, it is pronounced as ${suggestion}. Would you like to hear another suggestion?`
+        `If you meant <say-as interpret-as="spell-out">${suggestion}</say-as>, it is pronounced as ${suggestion}. I repeat, <prosody rate="x-slow">${suggestion}</prosody>. Would you like to hear another suggestion?`
       )
       .reprompt(`I have more suggestions. Would you like to hear them?`)
       .withShouldEndSession(false)

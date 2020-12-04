@@ -64,7 +64,7 @@ function pronounceTheWord(handlerInput) {
 By the way, you might have tried to pronounce a word or a phrase but I work best when you spell the word you need pronunciation for. Say "Ask Pronunciations for help" to learn more.`;
       return responseBuilder
         .speak(
-          `I would pronounce it as ${wordToBePronounced}. By the way, I work best when you spell the word you want me to pronounce, instead of saying the entire word or phrase.`
+          `I would pronounce it as ${wordToBePronounced}. I repeat, <prosody rate="x-slow">${wordToBePronounced}</prosody>. By the way, I work best when you spell the word you want me to pronounce, instead of saying the entire word or phrase.`
         )
         .withSimpleCard(
           `Pronunciation of '${wordToBePronounced}'`,
@@ -112,7 +112,7 @@ By the way, you might have tried to pronounce a word or a phrase but I work best
 
           return response
             .speak(
-              `I would pronounce it as ${wordToBePronounced}. By the way, I have a feeling that I misheard you. I have some suggestions on what you might have been trying to pronounce. Do you want to hear them?`
+              `I would pronounce it as ${wordToBePronounced}. I repeat, <prosody rate="x-slow">${wordToBePronounced}</prosody>. By the way, I have a feeling that I misheard you. I have some suggestions on what you might have been trying to pronounce. Do you want to hear them?`
             )
             .reprompt(
               `While I pronounced what I heard, I have a feeling that I either misheard you or you gave an incorrect spelling. I have some suggestions on what you might have been trying to pronounce. Do you want to hear them?`
@@ -159,12 +159,12 @@ By the way, you might have tried to pronounce a word or a phrase but I work best
           attributesManager.setSessionAttributes(attributes);
 
           responseBuilder
-            .speak(`It is pronounced as ${wordToBePronounced}. Shall I open the dictionary for ${wordToBePronounced}?`)
+            .speak(`It is pronounced as ${wordToBePronounced}. I repeat, <prosody rate="x-slow">${wordToBePronounced}</prosody>. Shall I open the dictionary for ${wordToBePronounced}?`)
             .reprompt(`Shall I open the dictionary for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`)
         }
         else {
           responseBuilder
-            .speak(`It is pronounced as ${wordToBePronounced}.`)
+            .speak(`It is pronounced as ${wordToBePronounced}. I repeat, <prosody rate="x-slow">${wordToBePronounced}</prosody>.`)
         }
         return responseBuilder
           .withShouldEndSession(isAplDevice || isAppLinksSupported ? false : true)

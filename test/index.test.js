@@ -59,7 +59,7 @@ describe("Open a dictionary app or website after pronouncing the word in the hap
     alexaTest.test([
       {
         request: new buildHowToPronounceIntent(wordToBePronounced, true),
-        says: `It is pronounced as ${wordToBePronounced}. Shall I open the dictionary for ${wordToBePronounced}?`,
+        says: `It is pronounced as ${wordToBePronounced}. I repeat, <prosody rate="x-slow">${wordToBePronounced}</prosody>. Shall I open the dictionary for ${wordToBePronounced}?`,
         reprompts: `Shall I open the dictionary for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`,
         shouldEndSession: undefined,
         hasAttributes: {
@@ -104,7 +104,7 @@ describe("Open a dictionary app or website after pronouncing the word in the hap
     alexaTest.test([
       {
         request: new buildHowToPronounceIntent(wordToBePronounced, true),
-        says: `It is pronounced as ${wordToBePronounced}. Shall I open the dictionary for ${wordToBePronounced}?`,
+        says: `It is pronounced as ${wordToBePronounced}. I repeat, <prosody rate="x-slow">${wordToBePronounced}</prosody>. Shall I open the dictionary for ${wordToBePronounced}?`,
         reprompts: `Shall I open the dictionary for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`,
         shouldEndSession: false,
         hasAttributes: {
@@ -146,7 +146,7 @@ describe("Open a dictionary app or website after pronouncing the word in the hap
       alexaTest.test([
         {
           request: howToPronounceIntent,
-          says: `It is pronounced as ${wordToBePronounced}. Shall I open the dictionary for ${wordToBePronounced}?`,
+          says: `It is pronounced as ${wordToBePronounced}. I repeat, <prosody rate="x-slow">${wordToBePronounced}</prosody>. Shall I open the dictionary for ${wordToBePronounced}?`,
           reprompts: `Shall I open the dictionary for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`,
           shouldEndSession: false,
           hasAttributes: {
@@ -181,7 +181,7 @@ describe("Open a dictionary app or website after pronouncing the word in the hap
       alexaTest.test([
         {
           request: howToPronounceIntent,
-          says: `It is pronounced as ${wordToBePronounced}. Shall I open the dictionary for ${wordToBePronounced}?`,
+          says: `It is pronounced as ${wordToBePronounced}. I repeat, <prosody rate="x-slow">${wordToBePronounced}</prosody>. Shall I open the dictionary for ${wordToBePronounced}?`,
           reprompts: `Shall I open the dictionary for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`,
           shouldEndSession: false,
           hasAttributes: {
@@ -543,8 +543,7 @@ it("should spell the input and educate the user if the input is all lower case. 
 
       const outputSpeech = responseUsed.outputSpeech;
       expect(outputSpeech.ssml).to.equal(
-        `<speak>I would pronounce it as ${wordsWithLowerCaseCharacters[i]
-        }. By the way, I work best when you spell the word you want me to pronounce, instead of saying the entire word or phrase.</speak>`
+        `<speak>I would pronounce it as ${wordsWithLowerCaseCharacters[i]}. I repeat, <prosody rate="x-slow">${wordsWithLowerCaseCharacters[i]}</prosody>. By the way, I work best when you spell the word you want me to pronounce, instead of saying the entire word or phrase.</speak>`
       );
       expect(outputSpeech.type).to.equal("SSML");
 
@@ -619,7 +618,7 @@ it("should spell the words in the happy case", async () => {
 
     const outputSpeech = responseUsed.outputSpeech;
     expect(outputSpeech.ssml).to.equal(
-      "<speak>It is pronounced as " + wordToBePronounced + ".</speak>"
+      `<speak>It is pronounced as ${wordToBePronounced}. I repeat, <prosody rate="x-slow">${wordToBePronounced}</prosody>.</speak>`
     );
     expect(outputSpeech.type).to.equal("SSML");
 
@@ -678,9 +677,7 @@ it(`should render a less confident prompt when a misspelling is detected. This c
 
       const outputSpeech = responseUsed.outputSpeech;
       expect(outputSpeech.ssml).to.equal(
-        "<speak>I would pronounce it as " +
-        wordToBePronounced +
-        ". By the way, I have a feeling that I misheard you. I have some suggestions on what you might have been trying to pronounce. Do you want to hear them?</speak>"
+        `<speak>I would pronounce it as ${wordToBePronounced}. I repeat, <prosody rate="x-slow">${wordToBePronounced}</prosody>. By the way, I have a feeling that I misheard you. I have some suggestions on what you might have been trying to pronounce. Do you want to hear them?</speak>`
       );
       expect(outputSpeech.type).to.equal("SSML");
 
@@ -822,11 +819,7 @@ it(`should cycle through all available spell suggestions as the user keeps askin
 
       outputSpeech = responseUsed.outputSpeech;
       expect(outputSpeech.ssml).to.equal(
-        '<speak>If you meant <say-as interpret-as="spell-out">' +
-        suggestion +
-        "</say-as>, it is pronounced as " +
-        suggestion +
-        ". Would you like to hear another suggestion?</speak>"
+        `<speak>If you meant <say-as interpret-as="spell-out">${suggestion}</say-as>, it is pronounced as ${suggestion}. I repeat, <prosody rate="x-slow">${suggestion}</prosody>. Would you like to hear another suggestion?</speak>`
       );
       expect(outputSpeech.type).to.equal("SSML");
 
@@ -999,7 +992,7 @@ it("should strip away extraneous phrases from the input and just pronounce the r
         expect(sessionAttributesUsed.isAPLSupported).to.be.true;
 
         expect(outputSpeech.ssml).to.equal(
-          `<speak>It is pronounced as ${wordToBePronounced}. Shall I open the dictionary for ${wordToBePronounced}?</speak>`
+          `<speak>It is pronounced as ${wordToBePronounced}. I repeat, <prosody rate="x-slow">${wordToBePronounced}</prosody>. Shall I open the dictionary for ${wordToBePronounced}?</speak>`
         );
         expect(outputSpeech.type).to.equal("SSML");
         expect(responseUsed.reprompt.outputSpeech.ssml).to.equal(`<speak>Shall I open the dictionary for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?</speak>`);
@@ -1025,7 +1018,7 @@ it("should strip away extraneous phrases from the input and just pronounce the r
         assert(responseUsed.shouldEndSession);
 
         expect(outputSpeech.ssml).to.equal(
-          "<speak>It is pronounced as " + wordToBePronounced + ".</speak>"
+          `<speak>It is pronounced as ${wordToBePronounced}. I repeat, <prosody rate="x-slow">${wordToBePronounced}</prosody>.</speak>`
         );
         expect(outputSpeech.type).to.equal("SSML");
         expect(responseUsed.reprompt).to.be.undefined;
