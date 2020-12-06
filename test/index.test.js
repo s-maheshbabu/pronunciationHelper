@@ -381,7 +381,7 @@ it("handles the AMAZON.HelpIntent properly", async () => {
 
   verifyAPLDirectiveStructure(responseUsed.directives);
   const directive = responseUsed.directives[0];
-  expect(directive.document).to.eql(wordPronouncedDocument);
+  expect(directive.document).to.eql(skillInfoDocument);
 
   const actualDatasource = directive.datasources;
   expect(actualDatasource).to.eql(
@@ -699,10 +699,7 @@ it(`should render a less confident prompt when a misspelling is detected. This c
           wordPronouncedDatasource(
             wordToBePronounced,
             `I have a feeling I misheard you though. Here are some words that are similar to what I heard. Do you want me to pronounce them?`,
-            topSuggestedSpellings(
-              suggestedSpellings,
-              MAX_SPELL_SUGGESTIONS_TO_DISPLAY
-            )
+            suggestedSpellings
           )
         );
       }
@@ -837,10 +834,7 @@ it(`should cycle through all available spell suggestions as the user keeps askin
         wordPronouncedDatasource(
           suggestion,
           `Here are more words that are similar to what I originally heard. Do you want me to pronounce them?`,
-          topSuggestedSpellings(
-            sessionAttributes.suggestedSpellings,
-            MAX_SPELL_SUGGESTIONS_TO_DISPLAY
-          )
+          sessionAttributes.suggestedSpellings,
         )
       );
     } else {
@@ -861,8 +855,7 @@ it(`should cycle through all available spell suggestions as the user keeps askin
       expect(actualDatasource).to.eql(
         wordPronouncedDatasource(
           suggestion,
-          `Now that you know how to pronounce ${suggestion}, you can ask Alexa for its meaning by saying "Alexa, define ${suggestion}"`,
-          `Thank you for using pronunciations.`
+          `Now that you know how to pronounce ${suggestion}, you can ask Alexa for its meaning by saying "Alexa, define ${suggestion}". Thank you for using pronunciations.`,
         )
       );
     }
@@ -1129,35 +1122,6 @@ function verifyAPLDirectiveStructure(directives) {
   expect(directive.type).to.equal(APL_DOCUMENT_TYPE);
   expect(directive.version).to.equal(APL_DOCUMENT_VERSION);
 }
-
-/**
- * Returns a string that is a comma separated list of top suggestions.
- * @param suggestedSpellings The complete list of spellings. Should be a non-empty array.
- * @param numberOfSuggestions The number of top spellings to extract. This should be a
- * positive number. If the number is larger than the size of all spellings available, we
- * will return all spellings.
- */
-function topSuggestedSpellings(suggestedSpellings, numberOfSuggestions) {
-  if (
-    !Array.isArray(suggestedSpellings) ||
-    !suggestedSpellings.length ||
-    numberOfSuggestions <= 0
-  )
-    throw `Invalid inputs. suggestedSpellings = ${suggestedSpellings}. numberOfSuggestions = ${numberOfSuggestions}.`;
-
-  let result = "";
-  for (
-    var i = 0;
-    i < numberOfSuggestions && i < suggestedSpellings.length;
-    i++
-  ) {
-    result += suggestedSpellings[i] + ", ";
-  }
-
-  return result.substring(0, result.length - 2);
-}
-
-
 
 /*
 Alexa supports Alexa Presentation Language (APL) on only a few devices and

@@ -126,8 +126,6 @@ By the way, you might have tried to pronounce a word or a phrase but I work best
                 wordToBePronounced,
                 `I have a feeling I misheard you though. Here are some words that are similar to what I heard. Do you want me to pronounce them?`,
                 suggestedSpellings
-                  .slice(0, MAX_SPELL_SUGGESTIONS_TO_DISPLAY)
-                  .join(", ")
               )
             })
             .getResponse();

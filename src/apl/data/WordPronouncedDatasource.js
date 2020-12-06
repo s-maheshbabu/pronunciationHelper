@@ -1,11 +1,14 @@
-module.exports = (originalWord, text, additionalInfo) => {
-  const secondaryText = additionalInfo
-    ? additionalInfo
-    : "Please try again if I misheard you";
+module.exports = (originalWord, text, wordSuggestions) => {
+  const allWords = [originalWord || [], ...wordSuggestions || []];
+  const allWordsWithSpeech = [];
+  allWords.forEach(word => {
+    allWordsWithSpeech.push({
+      primaryText: word,
+      ssml: `<speak>${word}. I repeat, <prosody rate=\"x-slow\">${word}</prosody></speak>`
+    });
+  });
   return {
-    bodyTemplate2Data: {
-      type: "object",
-      objectId: "bt2Sample",
+    data: {
       backgroundImage: {
         contentDescription: null,
         smallSourceUrl: null,
@@ -57,15 +60,20 @@ module.exports = (originalWord, text, additionalInfo) => {
         primaryText: {
           type: "PlainText",
           text: text
-        },
-        secondaryText: {
-          type: "PlainText",
-          text: secondaryText
         }
       },
-      logoUrl:
-        "https://s3.amazonaws.com/pronunciations-alexa-skill/512x512.png",
-      hintText: `Try, "Alexa, define ${originalWord}"`
+      properties: {
+        allWordsWithSpeech: allWordsWithSpeech
+      },
+      logoUrl: `https://s3.amazonaws.com/pronunciations-alexa-skill/512x512.png`,
+      hintText: `Try tapping the buttons next to the words`,
+      transformers: [
+        {
+          inputPath: "allWordsWithSpeech[*].ssml",
+          outputName: "ssml",
+          transformer: "ssmlToSpeech"
+        }
+      ]
     }
   };
 };

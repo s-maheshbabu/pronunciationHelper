@@ -176,8 +176,6 @@ function renderSpellSuggestions(handlerInput) {
           suggestion,
           `Here are more words that are similar to what I originally heard. Do you want me to pronounce them?`,
           suggestedSpellings
-            .slice(0, MAX_SPELL_SUGGESTIONS_TO_DISPLAY)
-            .join(", ")
         )
       })
       .getResponse();
@@ -193,8 +191,7 @@ function renderSpellSuggestions(handlerInput) {
         document: wordPronouncedDocument,
         datasources: wordPronouncedDatasource(
           suggestion,
-          `Now that you know how to pronounce ${suggestion}, you can ask Alexa for its meaning by saying "Alexa, define ${suggestion}"`,
-          `Thank you for using pronunciations.`
+          `Now that you know how to pronounce ${suggestion}, you can ask Alexa for its meaning by saying "Alexa, define ${suggestion}". Thank you for using pronunciations.`,
         )
       })
       .getResponse();

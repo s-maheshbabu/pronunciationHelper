@@ -117,7 +117,50 @@
       }
     }
   },
-  "layouts": {},
+  "layouts": {
+    "WordSuggestionLayout": {
+      "parameters": [
+        "wordSuggestionIndex",
+        "word"
+      ],
+      "item": [
+        {
+          "type": "Container",
+          "id": "wordSuggestionLayoutContainer",
+          "items": [
+            {
+              "type": "AlexaIconButton",
+              "speech": "${payload.data.properties.allWordsWithSpeech[wordSuggestionIndex].ssml}",
+              "primaryAction": [
+                {
+                  "type": "SpeakItem"
+                }
+              ],
+              "vectorSource": "M9.344,2.593c-0.253-0.104-0.547-0.045-0.743,0.15L4.486,6.887H1.313c-0.377,0-0.681,0.305-0.681,0.681v4.916c0,0.377,0.304,0.681,0.681,0.681h3.154l4.137,4.142c0.13,0.132,0.304,0.201,0.482,0.201c0.088,0,0.176-0.017,0.261-0.052c0.254-0.105,0.42-0.354,0.42-0.629L9.765,3.224C9.765,2.947,9.599,2.699,9.344,2.593z M5.233,12.003c-0.128-0.127-0.302-0.2-0.483-0.2H1.994V8.249h2.774c0.182,0,0.355-0.072,0.483-0.201l3.151-3.173l0.001,10.305L5.233,12.003z M16.434,10.007c0-2.553-1.518-4.853-3.869-5.858C12.223,4,11.821,4.16,11.672,4.506c-0.148,0.346,0.013,0.746,0.359,0.894c1.846,0.793,3.041,2.6,3.041,4.608c0,1.997-1.188,3.799-3.025,4.592c-0.346,0.149-0.505,0.551-0.356,0.895c0.112,0.258,0.362,0.411,0.625,0.411c0.091,0,0.181-0.017,0.269-0.056C14.922,14.843,16.434,12.548,16.434,10.007z M13.418,10.005c0-1.349-0.802-2.559-2.042-3.086c-0.346-0.144-0.745,0.015-0.894,0.362c-0.146,0.346,0.016,0.745,0.362,0.893c0.737,0.312,1.212,1.031,1.212,1.832c0,0.792-0.471,1.509-1.2,1.825c-0.345,0.149-0.504,0.551-0.352,0.895c0.112,0.257,0.362,0.41,0.625,0.41c0.091,0,0.181-0.017,0.27-0.057C12.625,12.545,13.418,11.339,13.418,10.005z M13.724,1.453c-0.345-0.15-0.746,0.012-0.895,0.358c-0.148,0.346,0.013,0.745,0.358,0.894c2.928,1.256,4.819,4.122,4.819,7.303c0,3.171-1.886,6.031-4.802,7.289c-0.346,0.149-0.505,0.55-0.356,0.894c0.112,0.258,0.362,0.412,0.626,0.412c0.09,0,0.181-0.019,0.269-0.056c3.419-1.474,5.626-4.826,5.626-8.54C19.368,6.282,17.152,2.923,13.724,1.453z"
+            },
+            {
+              "type": "AlexaIconButton",
+              "buttonText": "Dictionary",
+              "primaryAction": [
+                {
+                  "type": "OpenURL",
+                  "source": "https://www.merriam-webster.com/dictionary/${word}"
+                }
+              ],
+              "vectorSource": "M8.416,3.943l1.12-1.12v9.031c0,0.257,0.208,0.464,0.464,0.464c0.256,0,0.464-0.207,0.464-0.464V2.823l1.12,1.12c0.182,0.182,0.476,0.182,0.656,0c0.182-0.181,0.182-0.475,0-0.656l-1.744-1.745c-0.018-0.081-0.048-0.16-0.112-0.224C10.279,1.214,10.137,1.177,10,1.194c-0.137-0.017-0.279,0.02-0.384,0.125C9.551,1.384,9.518,1.465,9.499,1.548L7.76,3.288c-0.182,0.181-0.182,0.475,0,0.656C7.941,4.125,8.234,4.125,8.416,3.943z M15.569,6.286h-2.32v0.928h2.32c0.512,0,0.928,0.416,0.928,0.928v8.817c0,0.513-0.416,0.929-0.928,0.929H4.432c-0.513,0-0.928-0.416-0.928-0.929V8.142c0-0.513,0.416-0.928,0.928-0.928h2.32V6.286h-2.32c-1.025,0-1.856,0.831-1.856,1.856v8.817c0,1.025,0.832,1.856,1.856,1.856h11.138c1.024,0,1.855-0.831,1.855-1.856V8.142C17.425,7.117,16.594,6.286,15.569,6.286z"
+            },
+            {
+              "type": "Text",
+              "paddingLeft": "20",
+              "text": "${word}",
+              "textAlignVertical": "center"
+            }
+          ],
+          "direction": "row"
+        }
+      ]
+    }
+  },
   "mainTemplate": {
     "parameters": [
       "payload"
@@ -132,7 +175,7 @@
         "items": [
           {
             "type": "Image",
-            "source": "${payload.bodyTemplate2Data.image.sources[0].url}",
+            "source": "${payload.data.image.sources[0].url}",
             "scale": "best-fill",
             "width": "100vw",
             "height": "100vh",
@@ -153,19 +196,19 @@
                 "items": [
                   {
                     "type": "AlexaHeader",
-                    "headerAttributionImage": "${payload.bodyTemplate2Data.logoUrl}",
-                    "headerTitle": "${payload.bodyTemplate2Data.title}"
+                    "headerAttributionImage": "${payload.data.logoUrl}",
+                    "headerTitle": "${payload.data.title}"
                   },
                   {
                     "type": "Text",
-                    "text": "<b>${payload.bodyTemplate2Data.textContent.title.text}</b>",
+                    "text": "<b>${payload.data.textContent.title.text}</b>",
                     "style": "textStyleBody",
                     "width": "70vw",
                     "textAlign": "center"
                   },
                   {
                     "type": "Text",
-                    "text": "${payload.bodyTemplate2Data.textContent.subtitle.text}",
+                    "text": "${payload.data.textContent.subtitle.text}",
                     "style": "textStylePrimary",
                     "width": "70vw",
                     "textAlign": "center"
@@ -178,68 +221,74 @@
       },
       {
         "type": "Container",
-        "width": "100vw",
-        "height": "100vh",
+        "height": "100%",
         "items": [
           {
             "type": "Image",
-            "source": "${payload.bodyTemplate2Data.backgroundImage.sources[0].url}",
+            "source": "${payload.data.backgroundImage.sources[0].url}",
             "scale": "best-fill",
             "width": "100vw",
             "height": "100vh",
             "position": "absolute"
           },
           {
-            "type": "AlexaHeader",
-            "headerTitle": "${payload.bodyTemplate2Data.title}",
-            "headerAttributionImage": "${payload.bodyTemplate2Data.logoUrl}"
-          },
-          {
             "type": "Container",
-            "direction": "row",
-            "paddingLeft": "60dp",
-            "paddingRight": "72dp",
-            "grow": 1,
-            "shrink": 1,
-            "height": "100vh",
-            "items": [
+            "item": [
               {
-                "type": "ScrollView",
-                "height": "100%",
-                "grow": 1,
-                "shrink": 1,
-                "item": [
-                  {
-                    "type": "Container",
-                    "items": [
-                      {
-                        "type": "Text",
-                        "text": "<b>${payload.bodyTemplate2Data.textContent.title.text}</b>",
-                        "style": "textStyleBody",
-                        "color": "#4dd2ff"
-                      },
-                      {
-                        "type": "Text",
-                        "text": "${payload.bodyTemplate2Data.textContent.primaryText.text}",
-                        "style": "textStylePrimary"
-                      },
-                      {
-                        "type": "Text",
-                        "text": "${payload.bodyTemplate2Data.textContent.secondaryText.text}",
-                        "spacing": "@spacingSmall",
-                        "paddingTop": "40dp",
-                        "paddingRight": "70dp",
-                        "style": "textStylePrimary"
-                      }
-                    ]
-                  }
-                ]
+                "type": "AlexaHeader",
+                "headerTitle": "${payload.data.title}",
+                "headerAttributionImage": "${payload.data.logoUrl}"
               }
             ]
           },
           {
-            "type": "AlexaFooter",
-            "hintText": "${payload.bodyTemplate2Data.hintText}"
+            "type": "Container",
+            "paddingLeft": "60dp",
+            "items": [
+              {
+                "type": "Text",
+                "text": "<b>${payload.data.textContent.title.text}</b>",
+                "style": "textStyleBody",
+                "color": "#4dd2ff"
+              },
+              {
+                "type": "Text",
+                "text": "${payload.data.textContent.primaryText.text}",
+                "style": "textStylePrimary"
+              }
+            ],
+            "shrink": 1
+          },
+          {
+            "type": "Container",
+            "paddingLeft": "60dp",
+            "grow": 1,
+            "items": [
+              {
+                "type": "Sequence",
+                "item": [
+                  {
+                    "type": "WordSuggestionLayout",
+                    "wordSuggestionIndex": "${index}",
+                    "word": "${data.primaryText}"
+                  }
+                ],
+                "scrollDirection": "vertical",
+                "data": "${payload.data.properties.allWordsWithSpeech}",
+                "numbered": true,
+                "grow": 1
+              }
+            ]
+          },
+          {
+            "type": "Container",
+            "height": "15%",
+            "item": [
+              {
+                "type": "AlexaFooter",
+                "hintText": "${payload.data.hintText}"
+              }
+            ]
           }
         ]
       }
