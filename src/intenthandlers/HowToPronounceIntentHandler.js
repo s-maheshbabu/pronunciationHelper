@@ -159,13 +159,14 @@ By the way, you might have tried to pronounce a word or a phrase but I work best
           responseBuilder
             .speak(`It is pronounced as ${wordToBePronounced}. I repeat, <prosody rate="x-slow">${wordToBePronounced}</prosody>. Shall I open the dictionary for ${wordToBePronounced}?`)
             .reprompt(`Shall I open the dictionary for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`)
+            .withShouldEndSession(undefined)
         }
         else {
           responseBuilder
             .speak(`It is pronounced as ${wordToBePronounced}. I repeat, <prosody rate="x-slow">${wordToBePronounced}</prosody>.`)
+            .withShouldEndSession(true)
         }
         return responseBuilder
-          .withShouldEndSession(isAplDevice || isAppLinksSupported ? false : true)
           .withSimpleCard(
             `Pronunciation of '${wordToBePronounced}'`,
             educativeVisualMessage

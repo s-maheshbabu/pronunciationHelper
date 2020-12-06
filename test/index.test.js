@@ -34,9 +34,6 @@ const SPELLING_SLOT_TYPE = "ALL_WORDS";
 const APL_DOCUMENT_TYPE = APL_CONSTANTS.APL_DOCUMENT_TYPE;
 const APL_DOCUMENT_VERSION = APL_CONSTANTS.APL_DOCUMENT_VERSION;
 
-const MAX_SPELL_SUGGESTIONS_TO_DISPLAY =
-  APL_CONSTANTS.MAX_SPELL_SUGGESTIONS_TO_DISPLAY;
-
 const wordPronouncedDocument = require("apl/document/WordPronouncedDocument.json");
 const wordPronouncedDatasource = require("apl/data/WordPronouncedDatasource");
 
@@ -62,6 +59,7 @@ describe("Open a dictionary app or website after pronouncing the word in the hap
         says: `It is pronounced as ${wordToBePronounced}. I repeat, <prosody rate="x-slow">${wordToBePronounced}</prosody>. Shall I open the dictionary for ${wordToBePronounced}?`,
         reprompts: `Shall I open the dictionary for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`,
         shouldEndSession: undefined,
+        ignoreQuestionCheck: true,
         hasAttributes: {
           state: STATES.OFFER_DICTIONARY_PUNCHOUT,
           word: wordToBePronounced,
@@ -82,7 +80,7 @@ describe("Open a dictionary app or website after pronouncing the word in the hap
         request: new buildYesIntent(true),
         says: `Okay.`,
         repromptsNothing: true,
-        shouldEndSession: true,
+        shouldEndSession: undefined,
         callback: (response) => {
           const openUrlDirective = response.response.directives[0];
           expect(openUrlDirective).to.eql({
@@ -106,7 +104,8 @@ describe("Open a dictionary app or website after pronouncing the word in the hap
         request: new buildHowToPronounceIntent(wordToBePronounced, true),
         says: `It is pronounced as ${wordToBePronounced}. I repeat, <prosody rate="x-slow">${wordToBePronounced}</prosody>. Shall I open the dictionary for ${wordToBePronounced}?`,
         reprompts: `Shall I open the dictionary for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`,
-        shouldEndSession: false,
+        shouldEndSession: undefined,
+        ignoreQuestionCheck: true,
         hasAttributes: {
           state: STATES.OFFER_DICTIONARY_PUNCHOUT,
           word: wordToBePronounced,
@@ -148,7 +147,8 @@ describe("Open a dictionary app or website after pronouncing the word in the hap
           request: howToPronounceIntent,
           says: `It is pronounced as ${wordToBePronounced}. I repeat, <prosody rate="x-slow">${wordToBePronounced}</prosody>. Shall I open the dictionary for ${wordToBePronounced}?`,
           reprompts: `Shall I open the dictionary for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`,
-          shouldEndSession: false,
+          shouldEndSession: undefined,
+          ignoreQuestionCheck: true,
           hasAttributes: {
             state: STATES.OFFER_DICTIONARY_PUNCHOUT,
             word: wordToBePronounced,
@@ -157,7 +157,7 @@ describe("Open a dictionary app or website after pronouncing the word in the hap
         {
           request: yesIntent,
           repromptsNothing: true,
-          shouldEndSession: true,
+          shouldEndSession: undefined,
           callback: (response) => {
             const appLinksDirective = response.response.directives[0];
             expect(appLinksDirective).to.eql(buildDictionaryAppLinkDirective(`https://www.merriam-webster.com/dictionary/${wordToBePronounced}`, os, 'Okay.', 'Please unlock your device to see the dictionary.'));
@@ -183,7 +183,8 @@ describe("Open a dictionary app or website after pronouncing the word in the hap
           request: howToPronounceIntent,
           says: `It is pronounced as ${wordToBePronounced}. I repeat, <prosody rate="x-slow">${wordToBePronounced}</prosody>. Shall I open the dictionary for ${wordToBePronounced}?`,
           reprompts: `Shall I open the dictionary for ${wordToBePronounced} so you can learn its meaning, synonyms etc.?`,
-          shouldEndSession: false,
+          shouldEndSession: undefined,
+          ignoreQuestionCheck: true,
           hasAttributes: {
             state: STATES.OFFER_DICTIONARY_PUNCHOUT,
             word: wordToBePronounced,
