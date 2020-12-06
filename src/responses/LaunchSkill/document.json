@@ -1,0 +1,46 @@
+{
+    "type": "APLA",
+    "version": "0.9",
+    "description": "This document demonstrates key components used to create audio responses.",
+    "compositions": {},
+    "resources": [],
+    "mainTemplate": {
+        "parameters": [
+            "payload"
+        ],
+        "item": {
+            "type": "Mixer",
+            "items": [
+                {
+                    "type": "Speech",
+                    "contentType": "SSML",
+                    "content": "${payload.speech}"
+                },
+                {
+                    "type": "Audio",
+                    "description": "Background music when the skill is launched",
+                    "source": "soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_countdown_loop_64s_minimal_01",
+                    "filter": [
+                        {
+                            "type": "Trim",
+                            "start": 5000,
+                            "end": 13000
+                        },
+                        {
+                            "type": "FadeIn",
+                            "duration": 3000
+                        },
+                        {
+                            "type": "FadeOut",
+                            "duration": 5000
+                        },
+                        {
+                            "type": "Volume",
+                            "amount": 0.75
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}

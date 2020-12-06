@@ -40,6 +40,8 @@ const wordPronouncedDatasource = require("apl/data/WordPronouncedDatasource");
 const skillInfoDocument = require("apl/document/SkillInfoDocument.json");
 const skillInfoDatasource = require("apl/data/SkillInfoDatasource");
 
+const launchSkillAudioDocument = require("responses/LaunchSkill/document");
+
 const context = {};
 
 before(async () => {
@@ -466,11 +468,12 @@ it("should render the welcome message on launch requests", async () => {
     const responseUsed = response.response;
     assert(!responseUsed.shouldEndSession);
 
-    const outputSpeech = responseUsed.outputSpeech;
-    expect(outputSpeech.ssml).to.equal(
-      `<speak>Welcome to Pronunciations. You can say things like, pronounce <say-as interpret-as="spell-out">BITS</say-as> <break time="100ms"/> So, what word do you want me to pronounce?</speak>`
+    const audioDirective = responseUsed.directives[0];
+    expect(audioDirective.document).to.eql(launchSkillAudioDocument);
+    const actualAudioDatasource = audioDirective.datasources;
+    expect(actualAudioDatasource.speech).to.eql(
+      `Welcome to Pronunciations. You can say things like, pronounce <say-as interpret-as="spell-out">BITS</say-as> <break time="100ms"/> So, what word do you want me to pronounce?`
     );
-    expect(outputSpeech.type).to.equal("SSML");
 
     const reprompt = responseUsed.reprompt;
     expect(reprompt.outputSpeech.ssml).to.equal(

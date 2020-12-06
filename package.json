@@ -28,7 +28,7 @@
     "nspell": "^2.1.2"
   },
   "devDependencies": {
-    "ask-sdk-test": "^2.5.0",
+    "ask-sdk-test": "s-maheshbabu/ask-sdk-test",
     "chai": "^4.2.0",
     "decache": "^4.5.1",
     "deep-equal": "^2.0.4",
