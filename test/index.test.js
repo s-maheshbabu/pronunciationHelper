@@ -386,11 +386,8 @@ it("handles the AMAZON.HelpIntent properly", async () => {
   const actualDatasource = directive.datasources;
   expect(actualDatasource).to.eql(
     skillInfoDatasource(
-      `I can help you with the pronunciations of English words and phrases. Just spell the word you want me to pronounce. For example, you can say - `,
-      `Alexa, open pronunciations
-Alexa, ask pronunciations to pronounce G. Y. R. O.
-Alexa, open pronunciations and help me pronounce W. A. L. T.
-Alexa, pronounce the word D. O. U. B. T.`
+      `I can help you with the pronunciations of English words and phrases. Just spell the word you want me to pronounce.<br><br>For example, you can say - `,
+      `Alexa, open pronunciations<br>Alexa, ask pronunciations to pronounce G. Y. R. O.<br>Alexa, open pronunciations and help me pronounce W. A. L. T.<br>Alexa, pronounce the word D. O. U. B. T.`
     )
   );
 });
