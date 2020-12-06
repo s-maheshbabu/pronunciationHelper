@@ -13,9 +13,6 @@ const wordPronouncedDatasource = require("apl/data/WordPronouncedDatasource");
 const APL_DOCUMENT_TYPE = APL_CONSTANTS.APL_DOCUMENT_TYPE;
 const APL_DOCUMENT_VERSION = APL_CONSTANTS.APL_DOCUMENT_VERSION;
 
-const MAX_SPELL_SUGGESTIONS_TO_DISPLAY =
-  APL_CONSTANTS.MAX_SPELL_SUGGESTIONS_TO_DISPLAY;
-
 module.exports = YesIntentHandler = {
   canHandle(handlerInput) {
     return (

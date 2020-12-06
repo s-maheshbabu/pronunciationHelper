@@ -7,8 +7,8 @@ let SpellChecker;
 module.exports.init = () => {
   return new Promise((resolve, reject) => {
     if (!SpellChecker) {
-      console.log("SpellChecker being initialied.");
-      dictionary(function(error, dict) {
+      console.log("SpellChecker being initialized.");
+      dictionary(function (error, dict) {
         if (error) {
           // TODO: We should swallow this error and make the spell checker optional.
           // Currently code/tests assumes that SpellChecker is always available.
@@ -67,7 +67,7 @@ module.exports.getSuggestedSpellings = input => {
  * @param {*} input the string to be title cased.
  */
 function toTitleCase(input) {
-  return input.replace(/\w\S*/g, function(txt) {
+  return input.replace(/\w\S*/g, function (txt) {
     return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
   });
 }
